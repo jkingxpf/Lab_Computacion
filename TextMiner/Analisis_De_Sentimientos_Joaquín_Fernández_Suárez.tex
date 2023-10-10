@@ -1,0 +1,611 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Proyecto de Text Mining - Análisis de comentarios.},
+  pdfauthor={Joaquín Fernández Suárez},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Proyecto de Text Mining - Análisis de comentarios.}
+\author{Joaquín Fernández Suárez}
+\date{}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introducciuxf3n.}{%
+\section{Introducción.}\label{introducciuxf3n.}}
+
+En el siguiente proyecto se realizara un análisis sobre los comentarios
+de la siguiente
+\href{https://www.instagram.com/p/CgemyPPKAGA/?utm_source=ig_web_copy_link&igshid=MzRlODBiNWFlZA==}(publicación)
+perteneciente al influencer ``elXokas'' con el objetivo de descubrir la
+opinión de sus seguidores al respecto de la publicación.
+
+\hypertarget{quien-es-elxokas}{%
+\subsubsection{¿Quien es elXokas?}\label{quien-es-elxokas}}
+
+El influenser y streamer elXokas es un creador de contenido gallego
+famoso por sus comentarios directos y controvertidos, que le han
+provocado estar involucrado en diferentes discusiones y polemicas en el
+último año aunque su contenido principal no sea relacionado a la
+política o la prensa amarilla.
+
+Por estas cualidades vamos a elegir a este usuario de Instagram ya que
+se pueden sacar información interesante de la opinión de sus seguidores
+respecto a una publicación totalmente aleatoria.
+
+\hypertarget{publicaciuxf3n-escogida.}{%
+\subsubsection{Publicación escogida.}\label{publicaciuxf3n-escogida.}}
+
+La publicación antes señalada muestra a elXokas junto a uno de los
+mayores influencers de habla hispana elRubius, un personaje muy querido
+por la comunidad. Debido a el caracter amistoso de esta publicación en
+contraposición a la fama de este influencer parece interesante ver que
+es lo que desean señalar sus seguidores al respecto.
+
+\hypertarget{librerias-usadas.}{%
+\subsubsection{Librerias usadas.}\label{librerias-usadas.}}
+
+Para este proyecto usaremos la libreria \texttt{tidyverse} y
+\texttt{tidytext} para analizar el texto optenido. Tambien se usara la
+librería \texttt{lubridate} para trabajar con las fechas
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'ggplot2' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'tibble' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'dplyr' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{verbatim}
+## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+## v dplyr     1.1.1     v readr     2.1.4
+## v forcats   1.0.0     v stringr   1.5.0
+## v ggplot2   3.4.2     v tibble    3.2.1
+## v lubridate 1.9.2     v tidyr     1.3.0
+## v purrr     1.0.1     
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## i Use the ]8;;http://conflicted.r-lib.org/conflicted package]8;; to force all conflicts to become errors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidytext)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'tidytext' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(lubridate)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{obtenciuxf3n-de-los-comentarios.}{%
+\subsubsection{Obtención de los
+comentarios.}\label{obtenciuxf3n-de-los-comentarios.}}
+
+Para optener los comentarios de la aplicación Instagram se ha usado la
+aplicación \textbf{IGCommentExport} que dada la url de la publicación
+nos proporciona un fichero .csv con los comentarios de la publicación.
+Debido de que tiene una versión premium solo nos permite obtener como
+máximo cien comentarios.
+
+Estos serian los comentarios sin realizar ningun tratamiento.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{comentarios\_ig }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"\textasciitilde{}/R/Lab\_Computacion/TextMiner/IGCommentExport\_CgemyPPKAGA\_100\_comments.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 100 Columns: 7
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr (7): ="User Id", ="Username", ="Comment Id", ="Comment Text", ="Profile ...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(comentarios\_ig,}\DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 10 x 7
+##    `="User Id"` `="Username"` `="Comment Id"` `="Comment Text"` `="Profile URL"`
+##    <chr>        <chr>         <chr>           <chr>             <chr>           
+##  1 "=\"2606320~ "=\"jonathan~ "=\"1797364506~ "=\"\U0001f91d\U~ "=\"https://www~
+##  2 "=\"2606320~ "=\"jonathan~ "=\"1805994243~ "=\"Donde estas\~ "=\"https://www~
+##  3 "=\"2606320~ "=\"jonathan~ "=\"1824262256~ "=\"6/7 donde es~ "=\"https://www~
+##  4 "=\"2606320~ "=\"jonathan~ "=\"1795451530~ "=\"Ya 6/7 a la ~ "=\"https://www~
+##  5 "=\"2606320~ "=\"jonathan~ "=\"1798258203~ "=\"6/7 genialis~ "=\"https://www~
+##  6 "=\"2606320~ "=\"jonathan~ "=\"1797926197~ "=\"@prokdts chu~ "=\"https://www~
+##  7 "=\"8973589~ "=\"fr.1967s~ "=\"1795832291~ "=\"@le_saint_av~ "=\"https://www~
+##  8 "=\"3168273~ "=\"kian_far~ "=\"1819087034~ "=\"@fr.1967s ru~ "=\"https://www~
+##  9 "=\"4800785~ "=\"mendo4fu~ "=\"1796345619~ "=\"@anthony.dav~ "=\"https://www~
+## 10 "=\"1519807~ "=\"jtavaler~ "=\"1793164868~ "=\"Xokas ya te ~ "=\"https://www~
+## # i 2 more variables: `="Profile Pic URL"` <chr>, `="Date"` <chr>
+\end{verbatim}
+
+\hypertarget{tratamiento-de-los-datos.}{%
+\section{Tratamiento de los datos.}\label{tratamiento-de-los-datos.}}
+
+Una vez descargados los comentarios, se tratarán para obtener
+información con la que poder trabajar.
+
+Se comienza eliminando las columnas del dataset que no aportan
+infromación útil para la investigación.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{colnames}\NormalTok{(comentarios\_ig)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "=\"User Id\""         "=\"Username\""        "=\"Comment Id\""     
+## [4] "=\"Comment Text\""    "=\"Profile URL\""     "=\"Profile Pic URL\""
+## [7] "=\"Date\""
+\end{verbatim}
+
+Guardaremos los siguientes datos, que conforman el nombre del perfil que
+realizo el comentario y el texto del mismo.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{comentarios }\OtherTok{\textless{}{-}}\NormalTok{ comentarios\_ig }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"=}\SpecialCharTok{\textbackslash{}"}\StringTok{Username}\SpecialCharTok{\textbackslash{}"}\StringTok{"}\NormalTok{, }\StringTok{"=}\SpecialCharTok{\textbackslash{}"}\StringTok{Comment Text}\SpecialCharTok{\textbackslash{}"}\StringTok{"}\NormalTok{, }\StringTok{"=}\SpecialCharTok{\textbackslash{}"}\StringTok{Date}\SpecialCharTok{\textbackslash{}"}\StringTok{"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Y tratamos el dataset para poder trabajar eficientemente con él.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\#Renombramos las variables}
+\FunctionTok{colnames}\NormalTok{(comentarios)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "=\"Username\""     "=\"Comment Text\"" "=\"Date\""
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{comentarios }\OtherTok{\textless{}{-}}\NormalTok{ comentarios }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{rename}\NormalTok{(}\StringTok{"Username"} \OtherTok{=} \StringTok{"=}\SpecialCharTok{\textbackslash{}"}\StringTok{Username}\SpecialCharTok{\textbackslash{}"}\StringTok{"}\NormalTok{,}
+                                      \StringTok{"Text"} \OtherTok{=} \StringTok{"=}\SpecialCharTok{\textbackslash{}"}\StringTok{Comment Text}\SpecialCharTok{\textbackslash{}"}\StringTok{"}\NormalTok{ ,}
+                                      \StringTok{"Date"} \OtherTok{=} \StringTok{"=}\SpecialCharTok{\textbackslash{}"}\StringTok{Date}\SpecialCharTok{\textbackslash{}"}\StringTok{"}\NormalTok{)}
+
+\DocumentationTok{\#\#La variable "Date" la transformaremos a clase date.}
+
+\DocumentationTok{\#\#Usamos gsub para eliminar los caracteres que no deseamos.}
+
+\NormalTok{comentarios}\SpecialCharTok{$}\NormalTok{Date }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[\^{}0{-}9a{-}zA{-}Z/: ]"}\NormalTok{, }\StringTok{""}\NormalTok{, comentarios}\SpecialCharTok{$}\NormalTok{Date)}
+  
+\NormalTok{comentarios}\SpecialCharTok{$}\NormalTok{Date }\OtherTok{\textless{}{-}} \FunctionTok{as.Date}\NormalTok{(comentarios}\SpecialCharTok{$}\NormalTok{Date, }\AttributeTok{tryFormats =} \FunctionTok{c}\NormalTok{(}\StringTok{"\%d{-}\%m{-}\%Y"}\NormalTok{,}\StringTok{"\%d/\%m/\%Y"}\NormalTok{))}
+
+\DocumentationTok{\#\#Eliminamos caracteres = y " no necesarios de la variable Username.}
+
+\NormalTok{comentarios}\SpecialCharTok{$}\NormalTok{Username }\OtherTok{\textless{}{-}} \FunctionTok{gsub}\NormalTok{(}\StringTok{"[=}\SpecialCharTok{\textbackslash{}\textbackslash{}\textbackslash{}"}\StringTok{]"}\NormalTok{, }\StringTok{""}\NormalTok{, comentarios}\SpecialCharTok{$}\NormalTok{Username)}
+\end{Highlighting}
+\end{Shaded}
+
+A continuación crearemos un nuevo dataset con tokens, conformados con
+las palabras que estan contenidas en la variable \texttt{Text} del nuevo
+dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{token\_text }\OtherTok{\textless{}{-}}\NormalTok{ comentarios }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{unnest\_tokens}\NormalTok{(word, Text)}
+
+\FunctionTok{dim}\NormalTok{(token\_text)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1159    3
+\end{verbatim}
+
+A continuación se eliminarán las palabras vacías, palabras que no nos
+aportan información relevante.
+
+Es necesario destacar que \texttt{tidytext} no tiene lista de palabras
+vacías en español , pot tanto, usaremos las palabras vacias contenidas
+en el paquete \texttt{tm}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'tm' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: NLP
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'NLP'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:ggplot2':
+## 
+##     annotate
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{palabras\_vacias\_español }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(stop\_words,}
+                                     \FunctionTok{data\_frame}\NormalTok{(}\AttributeTok{word =}\NormalTok{ tm}\SpecialCharTok{::}\FunctionTok{stopwords}\NormalTok{(}\StringTok{"spanish"}\NormalTok{),}\AttributeTok{lexicon =} \StringTok{"custom"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: `data_frame()` was deprecated in tibble 1.1.0.
+## i Please use `tibble()` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+\end{verbatim}
+
+Se eliminan las palabras vacías del dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{token\_text }\OtherTok{\textless{}{-}}\NormalTok{ token\_text }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{anti\_join}\NormalTok{(palabras\_vacias\_español)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Joining with `by = join_by(word)`
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dim}\NormalTok{(token\_text)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 591   3
+\end{verbatim}
+
+Con el dataset tratado pasaremos al análisis y visualización de los
+datos.
+
+\hypertarget{visualizaciuxf3n.}{%
+\section{Visualización.}\label{visualizaciuxf3n.}}
+
+Primero se comenzará visualizando las palabras que más aparecen en los
+comentarios.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{token\_text }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{count}\NormalTok{(word, }\AttributeTok{sort =}\NormalTok{ T)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 453 x 2
+##    word               n
+##    <chr>          <int>
+##  1 si                11
+##  2 xokas              9
+##  3 _delta.rp          5
+##  4 alguien            5
+##  5 arribasangel10     5
+##  6 así                5
+##  7 mejor              5
+##  8 creo               4
+##  9 da                 4
+## 10 hace               4
+## # i 443 more rows
+\end{verbatim}
+
+Viendo la cantidad de palabras únicas que existen en los comentarios, es
+más interesante hacer un análisis de sentimientos, que nos permita
+analizar la cantidad de apoyo o hate recibe este influencer.
+
+\hypertarget{anuxe1lisis-de-sentimientos.}{%
+\section{Análisis de sentimientos.}\label{anuxe1lisis-de-sentimientos.}}
+
+Primero obtendremos un diccionario de sentimientos en español para poder
+trabajar con el idioma.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(here)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'here' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{verbatim}
+## here() starts at C:/Users/jking/Documents/R/Lab_Computacion
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{positive\_words }\OtherTok{\textless{}{-}}
+  \FunctionTok{read\_csv}\NormalTok{(here}\SpecialCharTok{::}\FunctionTok{here}\NormalTok{(}\StringTok{"TextMiner/sentiment{-}lexicons/positive\_words\_es.txt"}\NormalTok{), }\AttributeTok{col\_names =} \StringTok{"word"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sentiment =} \StringTok{"positive"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 1555 Columns: 1
+\end{verbatim}
+
+\begin{verbatim}
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr (1): word
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{negative\_words }\OtherTok{\textless{}{-}}
+  \FunctionTok{read\_csv}\NormalTok{(here}\SpecialCharTok{::}\FunctionTok{here}\NormalTok{(}\StringTok{"TextMiner/sentiment{-}lexicons/negative\_words\_es.txt"}\NormalTok{), }\AttributeTok{col\_names =} \StringTok{"word"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sentiment =} \StringTok{"negative"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 2720 Columns: 1
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr (1): word
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentiment\_words }\OtherTok{\textless{}{-}} \FunctionTok{bind\_rows}\NormalTok{(positive\_words, negative\_words)}
+\end{Highlighting}
+\end{Shaded}
+
+A continuación se usará \texttt{inner\_join}para enlazar las etiquetas
+del diccionario a laspalabras.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentimientos\_bing }\OtherTok{\textless{}{-}}\NormalTok{ token\_text }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{inner\_join}\NormalTok{(sentiment\_words)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Joining with `by = join_by(word)`
+\end{verbatim}
+
+Se mostrarán la cantidad de palabras negativas y positivas.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentimientos\_bing }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}\AttributeTok{Negativos =} \FunctionTok{sum}\NormalTok{(sentiment }\SpecialCharTok{==} \StringTok{"negative"}\NormalTok{), }
+            \AttributeTok{Positivos=} \FunctionTok{sum}\NormalTok{(sentiment }\SpecialCharTok{==} \StringTok{"positive"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 2
+##   Negativos Positivos
+##       <int>     <int>
+## 1        29        42
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentimientos\_bing }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(sentiment) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{count}\NormalTok{(word, }\AttributeTok{sort =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{aes}\NormalTok{(word, n, }\AttributeTok{fill =}\NormalTok{ sentiment)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{show.legend =} \ConstantTok{FALSE}\NormalTok{) }\SpecialCharTok{+} 
+    \FunctionTok{coord\_flip}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{sentiment, }\AttributeTok{scales =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+} 
+    \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"Contribución al sentimiento"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{xlab}\NormalTok{(}\ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{ylab}\NormalTok{(}\ConstantTok{NULL}\NormalTok{)}\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Analisis_De_Sentimientos_Joaquín_Fernández_Suárez_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+Se puede comprobar como existe una mayor cantidad de palabras positivas
+que negativas, lo que nos indica que los comentarios tienden a ser más
+favorables al influencer y al contenido de la publicción.
+
+Ahora clasificaremos las palabras según el sentimiento que describan,
+sea ira, tristeza, alegria, sorpresa\ldots{} Para ello usaremos
+\texttt{syuzhet} para poder trabajar en este tipo de análisis.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(syuzhet)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'syuzhet' was built under R version 4.2.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sentimientos\_df }\OtherTok{\textless{}{-}} \FunctionTok{get\_nrc\_sentiment}\NormalTok{(token\_text}\SpecialCharTok{$}\NormalTok{word, }\AttributeTok{lang=}\StringTok{"spanish"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: `spread_()` was deprecated in tidyr 1.2.0.
+## i Please use `spread()` instead.
+## i The deprecated feature was likely used in the syuzhet package.
+##   Please report the issue to the authors.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+\end{verbatim}
+
+Veamos cuales son los sentimientos que expresan los fans de elXokas en
+sus comentarios.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{barplot}\NormalTok{(}
+  \FunctionTok{colSums}\NormalTok{(sentimientos\_df[, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{8}\NormalTok{]),}
+  \AttributeTok{las =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{cex.names =} \FloatTok{0.7}\NormalTok{,}
+  \AttributeTok{main =} \StringTok{"Emociones de los comentarios de elXokas"}\NormalTok{,}
+  \AttributeTok{xlab=}\StringTok{"emociones"}\NormalTok{, }\AttributeTok{ylab =} \ConstantTok{NULL}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Analisis_De_Sentimientos_Joaquín_Fernández_Suárez_files/figure-latex/unnamed-chunk-15-1.pdf}
+Se puede ver como el sentimiento de la confianza \textit{"trust"} esta
+bastante presente en los comentarios análizados lo que puede indicar que
+la comunidad del influencer se siente bastante cómoda con la
+publicación, aunque es destacable la gran cantidad de palabras que se
+relacionan con el miedo \textit{"fear"} teniendo en cuenta el tipo de
+foto que se ha subido en sus redes.
+
+\hypertarget{conclusiuxf3n}{%
+\section{Conclusión}\label{conclusiuxf3n}}
+
+Tras analizar los sentimientos y emciones de esta muestra de comentarios
+de la publicación, se puede observar que existe bastantes palabras
+positivas con respecto a la publicación, aunque extraña el tipo de
+emociones que genera el influencer teniendo en cuenta el tipo de imagen
+subida. Será interesante recopilar todos los comentarios para verificar
+la información obtenida con esta muestra.
+
+\end{document}

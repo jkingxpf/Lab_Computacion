@@ -1,0 +1,60 @@
+---
+title: "Análisis de Redes Sociales - Twitter - Ejercicio 1"
+author:
+- affiliation: Laboratorio de Computación Científica - Universidad de Málaga 
+  name: Joaquín Fernández Suárez
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  prettydoc::html_pretty:
+  theme: architect
+highlight: github
+---
+ 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ 
+
+#  ``Text Analytics`` de Twitter  
+ 
+
+
+
+Realiza el siguiente ``Análisis de Twitter``:
+
+- Importar dataset PizzaGate.csv
+
+```{r}
+library(tidyverse)
+PizzaGate <- read_csv("~/R/Lab_Computacion/Clases/08-05-2023/PizzaGate.csv")
+```
+
+- ¿Cuantos tweets hay?
+- Analiza la estructura de la información que te has traido de Twitter. 
+- ¿Cuantos usuarios distintos han participado?
+- ¿Cuantos tweets son re-tweets? (*isRetweet*)
+- ¿Cuantos tweets han sido re-tweeteados? (*retweeted*)
+- ¿Cuál es el número medio de retweets? (*retweetCount*)
+- Da una lista con los distintos idiomas que se han usado al twitear este hashtag. (*language*)
+- Encontrar los nombres de usuarios de las 10 personas que más han participado. ¿Quién es el usuario que más ha participado?
+- Extraer en un data frame  aquellos tweets re-tuiteados más de 5 veces (*retweetCount*).
+- Aplicarle a los tweets las técnicas de Text-Mining vistas en clase:
+    * Haz pre-procesamiento adecuado. 
+    * Calcula la media de la frecuencia de aparición de los términos
+    * Encuentra los términos que ocurren más de la media y guárdalos en un data.frame: término y su frecuencia. Usa knitr::kable en el .Rmd siempre que quieras visualizar los data.frame.
+    * Ordena este data.frame por la frecuencia
+    * Haz un plot de los términos más frecuentes. Si salen muchos términos visualiza un número adecuado de palabras para que se pueda ver algo.
+    * Genera diversos wordclouds y graba en disco el wordcloud generado.
+    * Busca información de paquete wordcloud2. Genera algún gráfico con este paquete. 
+-  Para las 5 palabras más importantes de vuestro análisis  encontrar palabras que estén relacionadas y guárdalas en un data.frame. Haz plot de las asociaciones. 
+- Haz plot con los dispositivos desde los que se han mandado los tweets.
+- Para la palabra más frecuente de tu análisis busca y graba en un data.frame en los tweets en los que está dicho término. El data.frame tendrá como columnas: término, usuario, texto.
+
+
+Además, a tu conjunto de tweets le aplicarás el análisis de textos que hemos visto en clase usando ``tidytext``. 
+
+Explica resultados que obtienes de la información que hay en los tweets extraidos. 
+ 

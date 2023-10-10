@@ -1,0 +1,74 @@
+# Clustering
+
+Clustering es un método que permite agrupar a los diferentes individuos de un dataset en grupos dependiendo de sus variables, mostrando las similitudes entre ellos. Un ejemplo muy claro de ello se da en medicina donde se compara los síntomas de enfermedades para saber si pueden ser curadas de manera similar.
+
+## Preprocesado del dataset.
+
+El método de clustering se usan las distancias, que son calculos que establecen el parecido entre dos individuos de la población, por ello es necesario trabajar con variables numericas.En este caso todas las variables son categóricas, por tanto, se debe de transformar el dataset para poder aplicar esta técnica.
+
+Hay dos maneras de trasformar este dataset, por medio de la binarización como en el caso de FCA o estableciendo un número a cada posible estado de las variables.En este caso en particular usaremos un datset binarizado, para así estableces que si la variable no tiene el mismo estado entonces es igual de parecido que otro estado que tampoco sea igual. Si eligieramos el otro caso, algunos estados de la variable estarían menos alejados que otros , por ejemplo, si tenemos una variable calidad con estados muy bueno, bueno y malo, si sería recomendable usar un número para cada estado, ya que bueno es más cercano a muy bueno que el estado malo.
+
+Usaremos el mismo dataset que en FCA.
+
+```{r, eval=FALSE}
+soet2_bin
+```
+
+Hay diferentes tipos de distancias que podemos usar, una de ellas es la distancia de Hamming.La distancia de Hamming se utiliza para medir la diferencia entre dos secuencias de igual longitud, contando el número de elementos diferentes entre las dos secuencias. En este caso de datos binarios de un solo elemento, cada elemento de la cadena sería una variable binaria, y la distancia de Hamming mediría la diferencia entre dos cadenas de variables binarias.
+
+Las librerias que usaremos son.
+
+```{r, include = TRUE, warning=FALSE}
+##Libreria para hacer clustering
+library(cluster)
+##Libreria de visualización de clusterings
+library(factoextra)
+```
+
+La libreria `cluster` no proporciona la distancia de hamming en `daisy`, por ello por similitud usaremos la distancia de Gower.La distancia de Gower es un coeficiente de similaridad que se basa en diferentes tipos de información de n variables para medir las semejanzas entre dos individuos
+
+```{r, include=TRUE, warning=FALSE}
+dist_gower <- daisy(soet2_bin,metric = "gower")
+```
+
+Calculada la distancia, se calculara la cantidad de grupos optimos para este dataset.
+
+```{r}
+fviz_nbclust(x = soet2_bin, FUNcluster = pam, method = "wss", diss = dist_gower)
+```
+
+Lo que muestra la gráfica es la cantidad del error al cuadrado generado por el número de grupos, en este caso usaremos 10 grupos para mininizar al máximo el error optenido.
+
+Ahora se calcularan los clusters. Es importante dar al parametro una gran cantidad de iteracciones para así estar seguros de que los grupos estan bien formados.
+
+```{r, include=TRUE}
+grupos_cluster <- hclust(dist_gower, method = "average")
+
+fviz_dend(grupos_cluster,main = "Clusters",10)
+```
+En esta gráfica se muestra los diferentes elementos del dataset y sus grupos por colores, mientras su unión sea más lejana más distintos seran los grupos, como en el caso del grupo rojo y el grupo verde que estan mas alejados que el grupo verde y amarillo.
+
+La función `cutree` devolverá una lista con las etiquetas de cada grupo dictando que individuo va en cada cluster.
+
+```{r, include=TRUE}
+grupos <- cutree(grupos_cluster,k = 10)
+
+soet2_clusterizado <- soet2_bin
+soet2_clusterizado$cluster <- grupos
+```
+
+Se observará el cluster número 1 para ver en que se parecen.
+
+```{r}
+soet2_clusterizado %>% filter(soet2_clusterizado$cluster == 1)
+```
+
+Se puede ver dos dividuos que conforman el grupo 1 son diferentes exclusivamente en tres puntos.
+
+```{r}
+colnames(soet2_clusterizado%>% filter(soet2_clusterizado$cluster == 1) %>% select(12,14,17))
+```
+
+
+Este tipo de técnicas ayudan, en este caso, a saber que tipo de conductas podrían ayudar a tener más ofertas de trabajo, o más rentabilidad, o que prototipos de personas optan por elejir diferentes tipos de empleos o de jornadas.
+

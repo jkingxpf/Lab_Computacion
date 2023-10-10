@@ -1,0 +1,199 @@
+---
+title: "Proyecto de Text Mining - Análisis de comentarios."
+author: "Joaquín Fernández Suárez"
+affiliation: "Laboratorio de Computación Científica - Universidad de Málaga"
+output:
+  pdf_document: 
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: inline
+---
+# Introducción.
+
+
+En el siguiente proyecto se realizara un análisis sobre los comentarios de la siguiente  \href{https://www.instagram.com/p/CgemyPPKAGA/?utm_source=ig_web_copy_link&igshid=MzRlODBiNWFlZA==}(publicación) perteneciente al influencer "elXokas" con el objetivo de descubrir la opinión de sus seguidores al respecto de la publicación.
+
+### ¿Quien es elXokas?
+
+El influenser y streamer elXokas es un creador de contenido gallego famoso por sus comentarios directos y controvertidos, que le han provocado estar involucrado en diferentes discusiones y polemicas en el último año aunque su contenido principal no sea relacionado a la política o la prensa amarilla. 
+
+Por estas cualidades vamos a elegir a este usuario de Instagram ya que se pueden sacar información interesante de la opinión de sus seguidores respecto a una publicación totalmente aleatoria.
+
+### Publicación escogida.
+La publicación antes señalada muestra a elXokas junto a uno de los mayores influencers de habla hispana elRubius, un personaje muy querido por la comunidad. Debido a el caracter amistoso de esta publicación en contraposición a la fama de este influencer parece interesante ver que es lo que desean señalar sus seguidores al respecto.
+
+### Librerias usadas.
+
+Para este proyecto usaremos la libreria `tidyverse` y `tidytext` para analizar el texto optenido. Tambien se usara la librería `lubridate` para trabajar con las fechas
+
+```{r}
+library(tidyverse)
+library(tidytext)
+library(lubridate)
+```
+
+
+### Obtención de los comentarios.
+
+Para optener los comentarios de la aplicación Instagram se ha usado la aplicación **IGCommentExport** que dada la url de la publicación nos proporciona un fichero .csv con los comentarios de la publicación. Debido de que tiene una versión premium solo nos permite obtener como máximo cien comentarios.
+
+Estos serian los comentarios sin realizar ningun tratamiento.
+
+```{r}
+comentarios_ig <- read_csv("~/R/Lab_Computacion/TextMiner/IGCommentExport_CgemyPPKAGA_100_comments.csv")
+
+head(comentarios_ig,10)
+```
+
+# Tratamiento de los datos.
+
+Una vez descargados los comentarios, se tratarán para obtener información con la que poder trabajar.
+
+Se comienza eliminando las columnas del dataset que no aportan infromación útil para la investigación. 
+```{r}
+colnames(comentarios_ig)
+```
+
+
+Guardaremos los siguientes datos, que conforman el nombre del perfil que realizo el comentario y el texto del mismo.
+
+```{r}
+comentarios <- comentarios_ig %>% select(c("=\"Username\"", "=\"Comment Text\"", "=\"Date\""))
+```
+
+Y tratamos el dataset para poder trabajar eficientemente con él.
+
+```{r}
+##Renombramos las variables
+colnames(comentarios)
+comentarios <- comentarios %>% rename("Username" = "=\"Username\"",
+                                      "Text" = "=\"Comment Text\"" ,
+                                      "Date" = "=\"Date\"")
+
+##La variable "Date" la transformaremos a clase date.
+
+##Usamos gsub para eliminar los caracteres que no deseamos.
+
+comentarios$Date <- gsub("[^0-9a-zA-Z/: ]", "", comentarios$Date)
+  
+comentarios$Date <- as.Date(comentarios$Date, tryFormats = c("%d-%m-%Y","%d/%m/%Y"))
+
+##Eliminamos caracteres = y " no necesarios de la variable Username.
+
+comentarios$Username <- gsub("[=\\\"]", "", comentarios$Username)
+```
+
+
+A continuación crearemos un nuevo dataset con tokens, conformados con las palabras que estan contenidas en la variable `Text` del nuevo dataset.
+
+```{r}
+token_text <- comentarios %>% 
+  unnest_tokens(word, Text)
+
+dim(token_text)
+```
+
+A continuación se eliminarán las palabras vacías, palabras que no nos aportan información relevante.
+
+Es necesario destacar que `tidytext` no tiene lista de palabras vacías en español , pot tanto, usaremos las palabras vacias contenidas en el paquete `tm`.
+
+```{r}
+library(tm)
+palabras_vacias_español <- bind_rows(stop_words,
+                                     data_frame(word = tm::stopwords("spanish"),lexicon = "custom"))
+```
+
+Se eliminan las palabras vacías del dataset.
+
+```{r}
+token_text <- token_text %>% 
+  anti_join(palabras_vacias_español)
+
+dim(token_text)
+```
+
+Con el dataset tratado pasaremos al análisis y visualización de los datos.
+
+
+# Visualización.
+
+Primero se comenzará visualizando las palabras que más aparecen en los comentarios.
+
+```{r}
+token_text %>% count(word, sort = T)
+```
+
+Viendo la cantidad de palabras únicas que existen en los comentarios, es más interesante hacer un análisis de sentimientos, que nos permita analizar la cantidad de apoyo o hate recibe este influencer.
+
+
+# Análisis de sentimientos. 
+
+Primero obtendremos un diccionario de sentimientos en español para poder trabajar con el idioma.
+
+```{r}
+library(here)
+positive_words <-
+  read_csv(here::here("TextMiner/sentiment-lexicons/positive_words_es.txt"), col_names = "word") %>%
+  mutate(sentiment = "positive")
+
+negative_words <-
+  read_csv(here::here("TextMiner/sentiment-lexicons/negative_words_es.txt"), col_names = "word") %>%
+  mutate(sentiment = "negative")
+
+sentiment_words <- bind_rows(positive_words, negative_words)
+```
+
+
+A continuación se usará `inner_join`para enlazar las etiquetas del diccionario a laspalabras.
+
+```{r}
+sentimientos_bing <- token_text %>% inner_join(sentiment_words)
+```
+
+Se mostrarán la cantidad de palabras negativas y positivas.
+
+```{r}
+sentimientos_bing %>%
+  summarise(Negativos = sum(sentiment == "negative"), 
+            Positivos= sum(sentiment == "positive"))
+
+```
+
+```{r}
+sentimientos_bing %>%
+  group_by(sentiment) %>%
+  count(word, sort = TRUE) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) + 
+    coord_flip() + facet_wrap(~sentiment, scales = "free_y") + 
+    ggtitle("Contribución al sentimiento") + xlab(NULL) + ylab(NULL)+
+  theme()
+```
+
+Se puede comprobar como existe una mayor cantidad de palabras positivas que negativas, lo que nos indica que los comentarios tienden a ser más favorables al influencer y al contenido de la publicción.
+
+Ahora clasificaremos las palabras según el sentimiento que describan, sea ira, tristeza, alegria, sorpresa... Para ello usaremos `syuzhet` para poder trabajar en este tipo de análisis.
+
+```{r}
+library(syuzhet)
+
+sentimientos_df <- get_nrc_sentiment(token_text$word, lang="spanish")
+```
+
+Veamos cuales son los sentimientos que expresan los fans de elXokas en sus comentarios.
+
+```{r}
+barplot(
+  colSums(sentimientos_df[, 1:8]),
+  las = 1,
+  cex.names = 0.7,
+  main = "Emociones de los comentarios de elXokas",
+  xlab="emociones", ylab = NULL)
+```
+Se puede ver como el sentimiento de la confianza \textit{"trust"} esta bastante presente en los comentarios análizados lo que puede indicar que la comunidad del influencer se siente bastante cómoda con la publicación, aunque es destacable la gran cantidad de palabras que se relacionan con el miedo \textit{"fear"} teniendo en cuenta el tipo de foto que se ha subido en sus redes.
+
+# Conclusión
+
+Tras analizar los sentimientos y emciones de esta muestra de comentarios de la publicación, se puede observar que existe bastantes palabras positivas con respecto a la publicación, aunque extraña el tipo de emociones que genera el influencer teniendo en cuenta el tipo de imagen subida. Será interesante recopilar todos los comentarios para verificar la información obtenida con esta muestra.

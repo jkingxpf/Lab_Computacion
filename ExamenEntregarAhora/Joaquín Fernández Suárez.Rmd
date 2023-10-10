@@ -1,0 +1,302 @@
+---
+title: "Examen"
+author: "Joaquín Fernández Suárez"
+date: "2023-05-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Ejercicio 2
+
+```{r }
+library(tidyverse)
+gripe <- read_csv("C:/Users/Usuario_UMA/Downloads/gripe.csv")
+
+```
+
+### 1.
+
+```{r}
+gripe %>% ggplot(aes(x = numero_dia, y = casos_gripe)) + 
+  geom_point()
+```
+### 2.
+
+```{r}
+modelo1 <- lm(casos_gripe~numero_dia, data = gripe)
+
+summary(modelo1)
+```
+
+Si nos referimos a los coeficientes que representan la bondad del modelo creado, son necesarios revisar el R cuadrado el R ajustado y el p-value que nos informan de la buena predicción del modelo. En caso de que sean los coeficientes de la recta, se verán reflejados los más importantes con las estrellas colocadas a la derecha de la variable. Si la variable tiene muchas estrellas significa que es muy util para el modelo.
+
+El modelo creado no es muy bueno debido a sus datos de R cuadrado. Mientras mas cercano a uno mejor sera el modelo.En este caso es bastante lejano.
+
+
+### 3
+
+```{r}
+modelo2 <- lm(casos_gripe~I(numero_dia^4) + I(numero_dia^3) +I(numero_dia^2) + numero_dia , gripe)
+summary(modelo2)
+
+modelo3 <- lm(casos_gripe~poly(numero_dia, 4), gripe)
+summary(modelo3)
+```
+
+
+El modelo2 calculado por un plinomio de grado 4 nos indica que sus coeficientes de grado 4 y 3 son poco interesantes, y se podrian quitar del ajuste.Este modelo mejora considerablemente el modelo anterior, aunque puede mejorarse bastante.
+
+En el modelo3 se calcula a partir de polinomios ortogonales de grado 4 cuyo coeficiente de grado 4 es poco interesante. Los coeficientes que indican la calidad del modelo son similares al de grado 4, asi que los modelos son igual de buenos.
+
+### 4 
+```{r}
+
+contains()
+gripe$numero_dia + (1:length(gripe$numero_dia))
+
+seq(6,)
+
+```
+
+### 5
+
+```{r}
+error_10 <- gripe$casos_gripe[which(gripe$numero_dia == 10)] - predict(modelo3, data.frame(numero_dia = 10))
+
+error_10
+
+error_general <- gripe$casos_gripe - predict(modelo3, gripe)
+```
+
+### 6 
+
+```{r}
+gripe %>% ggplot(aes(x = numero_dia, y = casos_gripe)) + 
+  geom_point() +
+  geom_line(aes(y = predict(modelo2) ),  color = "red") + 
+  geom_line(aes(y = predict(modelo3)) , color = "blue")  
+
+```
+
+
+# Ejercicio 3 
+
+### 1
+```{r}
+states <- read_csv("~/R/Lab_Computacion/ExamenEntregarAhora/landdata-states.csv")
+
+grupos_kmeans <- kmeans(states %>% select(c("Home.Value", "Land.Value")), centers = 4 ,iter.max = 100)
+
+states %>%
+  as_tibble() %>%
+  mutate(cluster = grupos_kmeans$cluster,
+         state = row.names(states)) %>%
+  ggplot(aes(Home.Value, Land.Value, color = factor(cluster))) +
+  geom_point()
+
+str(grupos_kmeans)
+```
+A Continuación veremos los valores que representan los centros que los cuatro grupos.
+```{r}
+grupos_kmeans$centers
+```
+Se pueden ver que hay grupos cuyo valor del hogar y de la tierra son muy altos, y otros todo lo contrario, grupos 1 y 3, aunque es interesaste ver que el grupo 2 y 3 aunque el valor de la propiedad es bastante alta, el precio del suelo donde estan es muy bajo en comparación.
+
+VEamos la cantidad de casas que se encuentran en estos grupos.
+
+```{r}
+grupos_kmeans$size
+```
+
+Las casas del grupo 1 que tienen una media mas alta son bastante escasas, mientras que las casas que presentan un valor del suelo bajo y precios del hogar altos, tienen mucha cantidad.
+
+### 2
+
+```{r}
+##Guardaremos las variables que estamos usando para comparar.
+casas_agrupadas <- states %>% select(c("Home.Value", "Land.Value"))
+
+casas_agrupadas$grupos <- grupos_kmeans$cluster
+
+casas_agrupadas <- casas_agrupadas[order(casas_agrupadas$grupos),]
+```
+
+### 3
+
+```{r}
+library(factoextra)
+
+euclidea <- dist(casas_agrupadas %>% select(-"grupos"), method = "euclidean")
+
+fviz_nbclust(x = casas_agrupadas %>% select(-"grupos"),
+             method = "wss",
+             FUNcluster = kmeans,
+             diss = euclidea )
+```
+
+Esta gráfica nos indica la suma del error al cuadrado según la cantidad de grupos que existan. Para mejorár la agrupación con estas dos variables, podemos usar cinco o seis grupos, ya que si cogemos más no habria un cambio significativo.
+
+```{r}
+grupos_kmeans_2 <- kmeans(casas_agrupadas %>% select(-"grupos"), centers = 5, iter.max = 100)
+
+casas_agrupadas %>%
+  as_tibble() %>%
+  mutate(cluster = grupos_kmeans_2$cluster,
+         state = row.names(states)) %>%
+  ggplot(aes(Home.Value, Land.Value, color = factor(cluster))) +
+  geom_point()
+```
+
+Centros de los grupos.
+
+```{r}
+grupos_kmeans_2$centers
+```
+
+Tamaño de los clusters.
+```{r}
+grupos_kmeans_2$size
+```
+
+Se puede ver que existe un gran número de casas y tierras baratas, grupo 2, a diferencia de las casas mas caras, donde apenas llegan a las 100, grupo 4.
+
+
+### 4 
+
+```{r}
+c <- states[c(1, length(states$Home.Value)),] %>% select(c("Home.Value", "Land.Value"))
+distancia <- dist(c, method = "euclidean")
+
+distancia
+```
+
+#Ejercicio 4 
+
+### 1
+
+```{r}
+library(igraph)
+
+g <- read_graph(file = "instagram.graphml", format = "graphml")
+```
+### 2
+
+```{r}
+n <- length(V(g))
+
+vertices <- sample(1:n, size = 2)
+
+distancia <- shortest_paths(g, from = V(g)[vertices[1]], to = V(g)[vertices[2]])
+
+distancia
+```
+
+Tienen distancia de tres los dos elementos escogidos y pasan por Wanisha   Kanishia  Deshawnte.
+
+### 3
+
+```{r}
+```
+
+### 4
+
+```{r}
+pr <- page_rank(g)
+
+which(names(pr$vector) == "Celeste")
+
+e <- eigen_centrality(g)
+
+which(names(e$vector) == "Celeste")
+```
+Con page_rank celeste tiene una posición de importancia de 17 mientras que con eigen tiene una posicion de 17
+
+
+### 5
+```{r}
+gg <- g - V(g)[n]
+```
+
+### 6
+
+```{r}
+
+V(g)$conecsiones <- degree(g)
+```
+
+# Ejercicio 1
+
+```{r}
+library(pracma)
+n <-  100
+A <- zeros(n)
+
+diagonal <- rep(75,100)
+
+diagonal_1 <- rep(1,99)
+
+diagonal_2 <- rep(3,98)
+
+AA <- A + Diag(diagonal, k = 0) + Diag(diagonal_1, k = 1) + Diag(diagonal_1, k = -1) +
+  Diag(diagonal_2, k = 2) + Diag(diagonal_2, k = -2)
+
+x <- 1:4
+y <- 97:100
+
+AA[x,y] <- 100
+
+b <- c(-3,rep(0,98),1)
+length(b)
+```
+Con el vector y la matriz creados vamos a empezar a usar Jacobi.
+
+### 1
+```{r}
+j <- jacobi(AA, b)
+
+Norm(j$res,p = 1)
+Norm(j$res, p = 2 )
+```
+
+### 2
+
+```{r}
+xqr <- qrSolve(AA, b)
+
+residuo_qr <- AA %*% xqr - b
+
+Norm(residuo_qr, p = 1)
+
+Norm(residuo_qr, p = 2)
+```
+
+### 3
+
+```{r}
+x <- solve(AA, b)
+
+residuos_solve <- AA %*% x - b
+
+Norm(residuos_solve, p = 1)
+
+Norm(residuos_solve, p = 2)
+```
+
+### 4
+
+Según la norma calculada con los residuos, el mejor método sería usar el solve normal ya que nos daría un error menor, sin embargo, hay que tener encuenta que tanto los metodos qr y jacobi son más rápidos que resolverlo de manera completa (en este caso no se ha dado), y puede calcular una aproximación del resultado sin necesidad de que haya un resultado total (que el sistema de ecuaciones sea compatible determinado), ya que calcula una aproximación.  
+
+
+
+
+
+
+
+
+
+
+
+

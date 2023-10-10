@@ -1,0 +1,102 @@
+# Visualización 
+
+Antes de analizar el dataset se realizará una visualización de los datos que permita tener una primera idea del conjunto de datos.Para ello se usará la librería `ggplot2` que permitirá realizar diferentes gráficas de forma intuitiva.
+
+```{r, echo=TRUE}
+library(ggplot2)
+```
+
+Este tipo de estudios previos suelen ser bastante extensos, por tanto en este ejemplo no será tan exaustivo como debiera ser para así darle más importancia a las técnicas aprendidas en la asignatura. 
+
+## Estudio de los datos.
+
+Primero se observara la cantidad de individuos estab buscando trabajo, y de ellos, cuales tienen ya un empleo o no.
+
+```{r, include=TRUE}
+soet2_clean_sin_binarizar %>% ggplot(aes(x = buscando_trabajo)) +
+  geom_bar(aes(fill = con_empleo), position = "dodge")+
+  labs(
+    x = "Busqueda de trabajo",
+    y = "nº de personas",
+    fill = "Con empleo"
+  )
+```
+
+En esta gráfica se observa que hay una gran cantidad de personas con empleo que siguen buscando trabajo, de manera regular u ocasional.¿Qué les lleva a ello?.
+
+Las personas que buscan empleo teniendo trabajo,¿a qué trabajo quieren cambiar?.
+
+```{r, include=TRUE}
+soet2_empleados <- filter(soet2_clean_sin_binarizar, soet2_clean$buscando_trabajo %in% c("Yes", "Casually"))
+soet2_empleados %>% ggplot(aes(y = trabajo_soñado)) +
+  geom_bar(fill = "red") +
+  labs(
+    y = "Trabajo soñado",
+    x = "Cantidad",
+    title = "Puestos de trabajos más populares"
+  )
+```
+
+Se hará un filtrado enseñando aquellas con mayor número de personas (los cuatro más populares).
+
+```{r}
+frecuencia <- table(soet2_empleados$trabajo_soñado)
+
+frecuencia_ord <- frecuencia[order(frecuencia, decreasing = T)]
+
+o <- filter(soet2_clean, soet2_clean$trabajo_soñado %in%  names(frecuencia_ord[1:4]) )
+
+o %>% ggplot(aes(x = trabajo_soñado)) +
+  geom_bar(fill = "red") +
+  labs(
+    y = "Trabajo soñado",
+    x = "Cantidad",
+    title = "Los 4 puestos de trabajos más populares"
+  )
+```
+
+
+Es interesante ver que el trabajo preferido por las personas que buscan empleo aun teniendo sean de Data Science pero, ¿por qué estos individuos desean cambiar de trabajo?¿En qué tipo de compañia creen que los satisfacerá?
+
+
+```{r, include=TRUE}
+soet2_empleados_data <- filter(soet2_empleados, soet2_empleados$trabajo_soñado == "Data science/ Data Analytics")
+
+soet2_empleados %>% ggplot(aes(y = motivo_cambio))+
+  geom_bar(aes(fill = compañia_soñada),position = "dodge") +
+  labs(
+    x = "Nº personas",
+    y = "Motivo del cambio",
+    fill = "Compañias"
+  )
+
+
+soet2_empleados_data %>% ggplot(aes(y = motivo_cambio))+
+  geom_bar(aes(fill = compañia_soñada),position = "dodge") +
+  labs(
+    x = "Nº personas",
+    y = "Motivo del cambio",
+    fill = "Compañias"
+  )
+```
+
+Por lo que se ve en estas dos gráficas la mayoría de los individuos desean mejores oportunidades de trabajo y creen poder encontrarlas sobretodo en grandes multinacionales (MNC) y en startups, lo que podria probocar una gran cantidad de nuevas contrataciones debido principalmente a la introducción del trabajo en remoto en los ultimos años tras la pandemia, y al auge de las startups y las MNC debido al aumento de la importancia de los sistemas de información.
+
+Para poder confirmar esta hipotesis se visualizará otra gráfica con la edad y la preferencia en el trabajo para ver si las personas desean trabajar de manera remota.
+
+```{r, include=TRUE}
+soet2_empleados %>% ggplot(aes(y = edad))+
+  geom_bar(aes(fill = preferencia_tipo_trabajo),position = "dodge") +
+  labs(
+    x = "Nº Personas",
+    y = "Edad",
+    fill = "Preferencia tipo de jornada"
+  )
+
+```
+
+Vemos que las personas menores de veinticinco años con empleo sí estan dispuestas a optar por un trabajo hibrido e incluso totalmente telemático, a diferencia de las personas más mayores que son más reticentes al cambio. Esto fortalece nuestra hipotesis anterior.
+
+Tras haber reconocido los datos, se estudiará el dataset con diferentes técticas de análisis para desarollar modelos matemáticos que ayuden a comprender mejor el dataset.
+
+

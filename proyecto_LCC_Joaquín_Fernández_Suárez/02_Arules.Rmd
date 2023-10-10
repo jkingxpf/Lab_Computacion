@@ -1,0 +1,100 @@
+# Reglas de asociación
+
+En este capitulo se implementará una técnica llamada reglas de asociación cuyo objetivo es establecer diferentes relaciones entre los datos del tipo.
+$$
+A \Rightarrow B
+$$
+
+Donde A y B son un conjunto de items
+
+Un ejemplo relacionado con el dataset:
+
+$$
+Si\ una\ persona\ quiere\ trabajar\ en\ DataScience\Rightarrow sabe\ programar\ en\ Python  
+$$
+
+Para trabajar con este método usaremos la librería `arules` de R.
+```{r, warning=FALSE}
+library("arules")
+```
+## Preprocesado del dataset.
+Debido a la cantidad de variables que conforman el dataset "soet2_clean" y a las limitaciones del procesamiento de la maquina, escogeremos aquellas variables que creamos más necesarias.
+
+```{r}
+##Se usará el dataset sin binarizar debido a que la maquina donde se esta haciendo las pruebas carece de potencia suficiente como para procesar esta cantidad de datos
+colnames(soet2_clean_sin_binarizar)
+```
+
+
+## Reglas del dataset.
+
+Con el comando `apriori` de la librería `arules` se calcularán las diferentes reglas del dataset. En este comando se pueden especificar los parámetros mínimos de las reglas como el soporte (porcentaje de elementos afectados por la regla), cofianza (medida de incertidumbre de la regla), entre otros.
+
+
+```{r, warning=FALSE}
+##Usaremos un soporte mínimo del 0.20 y una confianza mínima del 0.8
+reglas <- apriori(soet2_clean_sin_binarizar,parameter = list(supp = 0.20
+                                                    , conf = 0.8))
+```
+Para encontrar información más detallada de las reglas ejecutamos el comando `summary`.
+
+```{r,include=TRUE}
+summary(reglas)
+```
+En la información que proporciona el comando `summary` se destacan la cantidad de reglas encontradas, las diferentes longitudes de las reglas y cuantas pertenecen a ellas, un desglose de los datos estadisticos de las longitudes, y el desglose de información estadistica de los parametros. 
+
+Los parametros con más relevancia en este proyecto,en orden descendente son; el soporte, la confianza y el lift (parametro parecido a la confianza teniendo en cuenta el soporte del consecuente,que indica si el antecedente y el consecuente mantienen o no una relación).Se tendrá interés en el primer, en el segundo y en el tercer cuartil de cada parametro que ayudará a conocer entre que valores se situan la mayoría de reglas.
+
+Ahora eliminaremos las reglas redundantes.
+
+```{r,include=TRUE}
+reglas <- reglas[which(!is.redundant(reglas))]
+```
+
+
+## Extracción de conocimiento
+
+Para visualizar la información aportada por las reglas usaremos la librería antes usada `ggplot2`.
+
+```{r,include=TRUE}
+reglas@quality %>%  ggplot(aes(x = support, y = confidence))+
+  geom_point(aes(color = lift)) +
+  labs(
+    x = "Soporte",
+    y = "Confianza",
+    color = "Lift"
+  )
+```
+
+
+En la gráfica podemos observar que la mayoría de reglas tienen un soporte entre el 0.2 y el 0.4, lo que quiere decir que el antecedente de gran parte de las reglas ocupan entre el 20% y el 40% del total del dataset.
+
+Debido a la gran cantidad de reglas con alta confianza, se seleccionarán las reglas con lift mayor a '1', que muestra la probabilidad de que ambos productos estén asociados es mayor que la probabilidad de que ambos productos no lo estén, lo cual indica que los productos del antecedente y el consecuente guardan una relación.
+
+```{r,include=TRUE}
+reglas_lift <- subset(reglas,reglas@quality$lift > 1)
+
+reglas_lift@quality %>%  ggplot(aes(x = support, y = confidence))+
+  geom_point(aes(color = lift)) +
+  labs(
+    x = "Soporte",
+    y = "Confianza",
+    color = "Lift"
+  )
+```
+A partir de aquí se pueden seleccionar las reglas dependiendo del consecuente que desee.Por ejemplo buscaremos aquellas con consecuente edad=<25.
+
+```{r,include=TRUE}
+reglas_menor <- reglas_lift %>%  subset(rhs(reglas_lift) %in% c("edad=<25"))
+inspect(reglas_menor)
+```
+
+A partir de aqui se analiza los antecedentes de las reglas, que aportan los datos en común que comparten todos los individuos menores de veinticinco años.Por ejemplo, si una persona  esta soltera, no esta en un año sabatico, no ha cambiado de carrera y los problemas que encuentra al buscar trabajo son la falta de experiencia hay un 91'3% de posibilidades de que sea un menor de veinticinco años.
+
+
+
+
+
+
+
+

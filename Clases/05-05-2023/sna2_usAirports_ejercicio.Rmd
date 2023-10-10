@@ -1,0 +1,91 @@
+---
+title: "Análisis de Redes Sociales - USairports  - II"
+author:
+- affiliation: Laboratorio de Computación Científica - Universidad de Málaga 
+  name: xxxx
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+<!-- para colocar una imagen -->
+<!-- ![](redes.png) -->
+
+```{r}
+library(igraph)
+library(igraphdata)
+library(tidyverse)
+```
+
+ 
+# Ejercicio
+
+ 
+Nota: Buscar información en   [https://igraph.org/r/](https://igraph.org/r/)  si hay algún comando que **no conoces**.
+
+Cargamos la librería **igraphdata** y el dataset  **USairports**. 
+
+>> Cambia el nombre al grafo (nuevo nombre US) usando:``graph_attr``.  
+
+  
+1. Visualizar el grafo.
+2. Usar función ``V`` para acceder a los vértices del grafo. Visualizar los cinco primeros vértices. 
+3. Usar función ``E`` para acceder a los arcos del grafo. Visualizar los cinco primeros arcos. 
+4. Mira las propiedades asociadas a los vértices ``vertex_attr_names``, ``vertex_attr``. 
+5. Usando estas propiedades extrae los nombres de los 5 primeros aeropuertos y de sus ciudades. 
+6.Examina las propiedades asociadas a los arcos ``edge_attr_names``,  ``edge_`attr```.
+7. Usando estas propiedades extrae los nombres de los 5 primeros compañías aéreas (carrier),  de cuantas salidas tiene cada una de estas compañías.
+8. Mira las conexiones entre los cinco primeros aeropuertos.  
+9. Usa ``vcount`` para saber el tamaño del grafo.
+10. Usa ``V()`` y las funciones de manejo de listas para añadirle un nuevo atributo a los vértices: *Group* que va a tener como valor para cada aeropuerto los valores "A" o "B" aleatoriamente. 
+
+11. Analizar qué hacen las siguientes órdenes:
+```{r,eval=FALSE}
+#Selector de arcos:  $\%--\%$ para acceder a los arcos entre dos vértices. 
+E(USairports)["JFK" %--% "BOS"] 
+# Si los arcos son dirigidos
+unique(E(USairports)["JFK" %->% "BOS"]$Carrier) 
+```
+12. Analizar qué hacen las siguientes órdenes:
+```{r,eval=FALSE}
+#Los selectores se pueden usar entre grupos de  vértices. 
+#Todos los vuelos de  California a New York # Buscar patrón (grep -pattern matching), el código de estado de el código de la ciudad 
+inCal <- grepl("CA$", V(USairports)$City)
+inNy <- grepl("NY$", V(USairports)$City)
+
+# Arcos de   CA a NY
+E(USairports)[V(USairports)[inCal] %->% V(USairports)[inNy]]
+
+```
+
+
+14. Eliminar la conexión entre *BJC* y *MIA*.
+15. Encontrar las conexiones directas desde *BOS*.
+16. Encontrar las conexiones desde *BOS*.
+17. Caminos y distancias entre dos aeropuertos. Explica cómo calcularlas. ¿Qué aeropuertos están a más de 1000 km?
+18. ¿Cuantas conexiones de entrada y salida tiene el primer aeropuerto?
+19. ¿Cuales son las ciudades vecinas de *Bangor* (conectadas por vuelos directamente) Usa ``neighbors``.
+20. Analizar qué hacen las siguientes órdenes:
+```{r,eval=FALSE}
+# Extraer todos los vecinos de un vértice particular a una distancia $d$:
+# Vértices a distancia 2 de JFK y  LAX
+d2Vertices <- ego(USairports, nodes = c("JFK","LAX"), order=2)
+# Vecinos de un vértice como un nuevo gráfico 
+JFKNet <- make_ego_graph(USairports, nodes = "JFK", order=2) 
+```
+
+21. Pasar el grafo a un dataframe. 
+22. Pasar el grafo a una matriz  y encontrar los aeropuertos conectados por tres escalas. Guardar en un grafo y visualizarlo.
+23. Aplicar a este grafo, las distintas medidas de calidad de grafos vistos en clase: tamaño, diámetro, clustering, transitividad, etc.  Buscar información en   [https://igraph.org/r/](https://igraph.org/r/). Analizar cuales son los *mejores* nodos, vértices según las distintas medidas.  
+24. Eliminar ciclos en el grafo. Buscar información de ``simplify``.
+25. Genera dos índices de vértices aleatoriamente entre los posibles, seleccióna dichos vértices y calcula la distancia a la que están y el camino más corto entre ellos.
+26. Calcular los 2 vértices conectados a más vértices.
+27. Calcula la menor distancia entre dos aeropuertos y di los vértices a esa distancia.
+28. Da una lista ordenada de los 10 aeropuertos más importantes del grafo usando las medidas pagerank, eigenvector. ¿En qué posición está **JFK** según ambas medidas.

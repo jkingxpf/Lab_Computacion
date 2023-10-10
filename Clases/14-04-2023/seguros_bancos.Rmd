@@ -1,0 +1,42 @@
+---
+title: "Regresión_lineal_seguro"
+author: "Joaquín Fernández Suárez"
+date: "2023-04-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Sustituir en el dataset la variable bmi por bmi30 - si bmi mayor o igual que 30 tendrá un 1
+```{r}
+library(tidyverse)
+library(dplyr)
+library(readr)
+insurance <- read_csv("~/R/Lab_Computacion/Clases/14-04-2023/insurance.csv")
+
+insurance_m <- insurance
+
+insurance_m$bmi30 <-  as.numeric(insurance_m$bmi>=30)
+insurance_m$bmi <- NULL
+```
+
+crear modelo 4 con el nuevo dataset con todas las variables, evaluar
+
+```{r}
+modelo4 <- lm(insurance_m$expenses~.,data = insurance_m)
+modelo4
+
+summary(modelo4)
+```
+Obtenemos un modelo bastante bueno, ya que su R^2 es de un 0.754 y con un R ajustado de 0.7525 que indica que la correlacion entre los datos reales y los datos generados por el modelo se ajustan bastante, aunque tambien podemos ver que este modelo puede ser mejorado.
+
+Añadir varias componentes no lineales a modelo4 para mejorarlo
+```{r}
+insurance_m %>% ggplot(aes(y = expenses, x = age )) +
+  geom_point(colour = "blue")
+```
+
+
+

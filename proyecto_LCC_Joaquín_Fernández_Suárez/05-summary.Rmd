@@ -1,0 +1,3 @@
+# Conclusión
+
+Como últimas observaciones acerca de lo realizado en esta tarea, se puede conluir que para este tipo de datasets con diferentes variables necesarias de preprocesar es más interesante realizar estudios con tecnicas de reglas de asociación y sobretodo FCA que permiten establecer relaciones entre los atributos de caracter categórico de forma clara, aunque la gran cantidad de reglas que se establecen pueden complicar la estracción de conocimiento.

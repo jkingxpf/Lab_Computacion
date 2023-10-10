@@ -1,0 +1,112 @@
+---
+title: "Clustering - dataset eweather"
+author: "Joaquín Fernández Suárez"
+date: "yyyy"
+output: html_document
+---
+
+Usar dataset weather.csv
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(readr)
+library(cluster)
+library(factoextra)
+weather <- read_csv("weather.csv")
+```
+
+
+- eliminar  variables no numéricas
+
+```{r}
+str(weather)
+weather_clean <- weather %>% select(-c(1,2,8,10,11,22,24))
+
+```
+
+- asegurate que son numéricas - convierte tipos 
+```{r}
+str(weather_clean)
+#Si hay alguno que no es numerico se elimina o se transforma.
+```
+
+- preprocessing: NA, escalar si es necesario
+```{r}
+w <- na.omit(weather_clean)
+length(w$MinTemp)
+length(weather_clean$MinTemp)
+#Al haber pocos elementos que son eliminados usaremos el dataset w
+```
+
+- haz clustering con k-means y con clustering jerárquico
+```{r}
+#k-means de 3 grupos
+k_clusters <- kmeans(w, centers = 3,iter.max = 50)
+
+#clistering jerarquico
+dist <- w %>% dist(method = "euclidean")
+clust <- hclust(d = dist, method = "complete")
+```
+
+- haz visualizaciones
+```{r}
+#k-means clustering 
+k_clusters
+w_c <- w
+w_c$cluster <- k_clusters$cluster
+
+w_c %>% ggplot(aes(x = MinTemp, y = MaxTemp))+
+  geom_point(aes(color = factor(cluster)))
+
+#Se aprecia que los lugares con maximas y minimas mas altas tienen relación.
+#Visualización de los tres grupos
+fviz_cluster(k_clusters,w)
+
+
+#clustering jerarquico
+
+
+
+fviz_dend(clust,k = 3)
+
+w_j <- w_c
+w_j$cluster <- cutree(clust, k = 3)
+
+w_j %>% ggplot(aes(x = MinTemp, y = MaxTemp))+
+  geom_point(aes(color = factor(cluster)))
+
+#En esta grafica vemos que tambien hay relacion, pero menos destacable entre las
+#temperaturas maximas y minimas, lo que indica que hay otros factores que influyen
+#notablemente.
+
+```
+
+- calcula número optimo para k-means y repite clustering con este número optimo
+
+```{r}
+fviz_nbclust(w,FUNcluster = kmeans,method = "wss")
+
+#Cogeremos seis grupos para kmeans ya que si cogemos mas el error se reduce muy poco.
+
+k_clusters_optimo <- kmeans(w, centers = 6, iter.max = 50)
+fviz_cluster(k_clusters_optimo,w)
+
+w_c_optimo <- w_c
+w_c_optimo$cluster <- k_clusters_optimo$cluster
+w_c_optimo %>% ggplot(aes(x = MinTemp, y = MaxTemp))+
+  geom_point(aes(color = factor(cluster)))
+
+
+
+```
+
+
+>> investigar: paquete fpc tiene función plotcluster - aprende a usarla y usala 
+
+>> ¿algo interesante del paquete fpc para clustering? - busca información - úsalo en este dataset
+
+
+ 
+
+
+

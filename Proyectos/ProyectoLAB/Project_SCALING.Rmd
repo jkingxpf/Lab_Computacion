@@ -1,0 +1,139 @@
+---
+title: "Scaling in FCA"
+output: html_document
+---
+
+- Análisis sobre evaluaciones de coches   
+- Usaremos FCA
+
+>> [Scaling](Project_3.html cars.csv Project 3.Rmd)
+
+```{r message = FALSE, warning = FALSE}
+#Libraries
+library(fastDummies) ## Para crear variables dummy
+library(tidyverse)
+library(fcaR)
+library(arulesViz)
+library(colorspace)
+
+#Reading data
+cars<-read.csv('cars.csv',header=TRUE,sep=",")
+ 
+head(cars)
+
+```
+
+Objetivo: 
+
+>> ¿Qué hace atractivo o no un coche?
+ 
+>> ¿coches poco seguros?
+>>¿solo para dos personas?
+>>¿maletero (Lug_boot) pequeño?
+
+>> ¿cuando un coche se considera bueno?
+
+>> ¿qué patrones, características, relaciones encuentras?
+
+Extraer conocimiento a través de conceptos y/o a través de implicaciones. 
+
+Preparamos el dataset para realizar los conceptos y las implicaciones con el metodo 
+de formal concept, usamos la libreria "FastDummies" para agilizar el proceso.
+```{r}
+str(cars)
+columnas <- colnames(cars)
+
+sum(is.na(cars)) #Comprobar si hay na
+
+cars_bi <- dummy_cols(cars, select_columns = columnas) %>% 
+  select(-columnas)
+
+head(cars_bi,10)
+
+```
+
+Ahora utilizamos la libreria "fcar" para estudiar los datos.
+```{r}
+fc <- FormalContext$new(cars_bi)
+
+sum(is.na(cars))##comprobar si hay NA
+
+fc$find_concepts()
+fc$find_implications()
+
+fc$plot()
+#fc$concepts$plot() #Tarda bastante recomiendo no hacerlo 
+head(fc$concepts, 10)
+head(fc$implications,10)
+
+```
+
+¿Qué hace atractivo o no un coche?
+
+Estudiamos las implicaciones resultantes y hacemos un filtrado de aquellas que 
+no son interesantes.
+```{r}
+fc$implications$cardinality()
+
+size <- fc$implications$size()
+colMeans(size)
+
+fc$implications$apply_rules(rules = c("composition",
+                                      "generalization",
+                                      "simplification",
+                                      "r-simplification"))
+
+fc$implications$cardinality()
+size <- fc$implications$size()
+colMeans(size)
+
+#No se simplifica 
+
+#Vamos a comprobar si hay las implicaciones donde hay o no soporte.
+
+soporte <- fc$implications$support()
+
+sum(soporte == 0)
+
+which(soporte == 0)
+#Eliminamos esas implicaciones ya que al no tener ningun soporte no nos interesa
+
+fc$implications <- fc$implications[-which(soporte == 0)]
+fc$implications$cardinality()
+
+fc$implications$filter(rhs = c("buying_vhigh"))
+
+```
+Filtrada las reglas, vemos que los atributos relacionados con el alto interes de
+compra proviene sobre todo del atributo main_high, tambien de que disponga de espacio para
+cuatro o mas personas, con maletero entre mediano y grande con una seguridad alta o media,
+de clase unacc, y que tengan entre tres y cinco puertas, lo que nos puede indicar que 
+los modelos mas vendidos sean del tipo familiar donde quepan gran cantidad de personas
+y objetos y que sean seguros de conducir.
+
+Acontinuación veremos aquellos coches que menos se venden.
+```{r}
+fc$attributes
+fc$implications$filter(rhs = c("buying_low"))
+```
+Vemos que en los coches menos vendidos se tienen en cuenta que su fama es 
+buena (similar a los coches mas vendidos) o media, de maletero entre pequeño 
+y mediano,seguridad media, y de clase acc, buena , o muy buena.
+
+
+¿cuando un coche se considera bueno?
+```{r}
+fc$implications$filter(rhs = c("main_vhigh"))
+
+```
+
+Los coches se concideran muy buenos si tienen buena seguridad, tienen una alta capacidad de personas, tienen tres o más puertas y son de clase unacc.
+
+
+¿qué patrones, características, relaciones encuentras?
+
+Vemos que los coches tanto más vendidos como menos vendidos tienen una valoracion 
+similar, sin embargo la cantidad de personas, tamaño de maletero número de puertas 
+y clase del coche son decisibos para saber si ese coche tendra muy buenas ventas 
+o no, este o no bien considerado.
+

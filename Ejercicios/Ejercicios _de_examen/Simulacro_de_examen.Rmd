@@ -1,0 +1,78 @@
+Prueba de examen 1.
+Autor: Joaquín Fernández Suárez
+Grado: Informática B
+--------------------------------------------------------------------------------
+Ejercicio 1:
+
+```{r}
+obA <- c(8:20)
+obB <- c(20:8)
+obC <- matrix(seq(20,40,4),nrow = 2)
+
+
+lista1 <- list(observacionA = obA,
+               observacionB = obB,
+               observacionC = obC,
+               observacionD = obC)
+lista1
+str(lista1)
+
+resultados <- lapply(lista1, sum)
+
+mi_suma <- function(l){
+  s <- 0
+  for (x in l) {
+    s <- s + x
+  }
+  return(s)
+}
+
+mi_suma(resultados)
+```
+
+Ejercicio 2: 
+```{r}
+library(dplyr)
+data("mtcars")
+
+mtcars$namecar <- rownames(mtcars)
+
+ocho <- mtcars %>% filter(cyl == 8)
+
+head(ocho,10)
+c <- max(ocho$carb)
+g <- max(ocho$gear)
+
+filtrado_ocho <- ocho %>% filter(mpg >= 10.4, mpg <= 17.4, carb == c, gear == g)
+head(filtrado_ocho,10)
+```
+
+Ejercicio 3:
+
+
+a:
+```{r}
+library(arules)
+data("Mushroom")
+
+mis_reglas <- apriori(Mushroom,
+                      list(sup = 0.28818,
+                           conf = 0.27634,
+                           minlen = 2))
+
+length(mis_reglas)
+inspect(head(mis_reglas,10))
+
+summary(mis_reglas)
+```
+b:
+```{r}
+mis_reglas[2]@quality$lift
+```
+c:
+```{r}
+ordenadas_lift <- mis_reglas[order(mis_reglas@quality$lift, decreasing = T)]
+inspect(head(ordenadas_lift,10))
+
+itemFrequency(Mushroom)
+```

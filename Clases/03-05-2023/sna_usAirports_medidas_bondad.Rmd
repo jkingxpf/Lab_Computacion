@@ -1,0 +1,154 @@
+---
+title: "Análisis de Redes Sociales - USairports "
+autho: Joaquín Fernández Suárez
+- affiliation: Laboratorio de Computación Científica - Universidad de Málaga 
+  name: xxxx
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+<!-- para colocar una imagen -->
+<!-- ![](redes.png) -->
+
+```{r}
+library(igraph)
+library(igraphdata)
+```
+
+ 
+# Ejercicio
+
+ 
+Nota: Buscar información en   [https://igraph.org/r/](https://igraph.org/r/)  si hay algún comando que **no conoces**.
+
+Cargamos la librería **igraphdata** y el dataset  **USairports**. 
+
+1. Visualizar el grafo.
+```{r}
+data("USairports")
+plot(USairports)
+air <- USairports
+```
+
+2. Calcula número de aeropuertos.
+```{r}
+length(V(air)) 
+```
+
+3. Calcula número de enlaces (vuelos).
+```{r}
+length(E(air))
+```
+
+4. Visualizar los cinco primeros vértices. Usar función ``V`` para acceder a los vértices del grafo. 
+```{r}
+str(air)
+V(air)[1:5]
+
+which(V(air)$name == "LAS")
+V(air)$name[5]
+grep("Los",V(air)$City)
+```
+
+5. Visualizar los cinco primeros arcos. Usar función ``E`` para acceder a los arcos del grafo. 
+```{r}
+E(air)[1:5]
+```
+
+6. Mira las propiedades asociadas a los vértices ``vertex_attr_names``, ``vertex_attr``. 
+```{r}
+vertex_attr_names(air)
+vertex_attr(air)
+```
+
+7. Usando estas propiedades extrae los nombres de los 5 primeros aeropuertos y de sus ciudades. 
+
+```{r}
+V(air)[1:5]$name
+V(air)[1:5]$City
+
+```
+
+8. Examina las propiedades asociadas a los arcos ``edge_attr_names``,  ``edge_`attr```.
+
+```{r}
+edge_attr_names(air)
+edge_attr(air)
+```
+
+9. Calcula el grado de cada vértice de  la red. 
+```{r}
+degree(air)
+```
+
+
+10. Guarda los índices de los vértices ordenados por grado de forma decreciente. 
+Muestra los 10 aeropuertos (vértices que tienes más conexiones - grado mayor)
+
+```{r}
+head(V(air)[order(degree(air), decreasing = T)], 10)
+```
+
+11. Muestra los 10 aeropuertos con más conexiones de salida (vértices que tienes más conexiones de salida - grado mayor de salida). 
+
+```{r}
+head(V(air)[order(degree(air,mode = "out"), decreasing = T)],10)
+```
+
+
+12. Calcula el grado de centralidad de cada aeropuerto. Ordena por este grado de forma decreciente. Muestra los 10 aeropuertos de mayor grado de centralidad. 
+```{r}
+V(air)$name[order(centr_degree(air)$res, decreasing = T)][1:10]
+```
+
+
+13. Muestra los 10 nodos  claves entre grupos de aeropuertos (betweenness).   
+```{r}
+
+```
+
+
+14. Muestra los 10 vuelos (arcos)  claves entre grupos de aeropuertos (betweenness).   
+```{r}
+edge_betweenness(air)
+```
+
+
+15. ¿Qué 10 aeropuertos son más importantes según la medida de los autovalores?
+
+16. ¿y según el algoritmo page.rank?
+```{r}
+
+```
+
+
+
+17. ¿Cual es el mayor número de vuelos entre aeropuertos sin hacer ciclos?
+
+18. ¿Qué vertice/s tiene en su nombre "Vegas"?
+
+19. ¿Qué vertice/s tiene en su nombre "Wash" (ciudad que empieza por este patrón)?
+
+20. ¿Cual es el camino más corto entre "Vegas" y "Wash"?
+
+21. Calcula las distancias entre todos los aeropuertos. 
+
+
+22. ¿Cuáles son los 10 trayectos con más salidas?
+
+
+23. ¿Cual es el trayecto con más plazas? 
+
+24. ¿Cual es el trayecto que mueve más pasajeros? 
+
+
+
+

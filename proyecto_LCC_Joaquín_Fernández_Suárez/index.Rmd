@@ -1,0 +1,564 @@
+--- 
+title: "Proyecto de análisis LCC"
+author: "Joaquín Fernández Suárez"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: 
+  bookdown::pdf_book
+documentclass: article
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook."
+---
+
+# Introducción 
+En el siguiente documento se realizará un estudio sobre el dataset "Survey on Employment Trends  2.csv" en donde se recopilan diferentes datos sobre la vida profesional de varios individuos a partir de diferentes preguntas. Estas preguntas conformarán las diferentes variables del dataset.
+
+Se usarán diferentes técnicas de análisis para estudiar y recopilar información de este dataset, todo ello con ayuda del lenguaje R y diferentes librerías para el mismo.
+
+## Información del dataset
+
+El dataset "Survey on Employment Trends  2.csv" recopila diferentes preguntas realizadas a un conjunto de personas relacionadas con su vida profesional, aunque podemos encontrar algunas de índole más personal.
+
+Durante la realización del estudio se usarán las siguientes librerias que permitirán facilitar el proceso de investigación.
+
+```{r, include=TRUE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+```
+
+Se importa el dataset al book y se eliminan las filas con datos no deficidos(NA).
+
+```{r, include=TRUE}
+soet2 <- read_csv("Survey on Employment Trends  2.csv")
+soet2 <- na.omit(soet2)
+```
+
+Aquí se muestran las preguntas que conforman las variables del dataset.
+
+```{r,include=TRUE}
+colnames(soet2)
+```
+Existen algunas variables que no nos aportan ningún tipo de información relevante, por ello deben ser eliminadas del dataset.
+
+Las variables desechadas son:
+
+  -Timestamp -> Marca temporal, no aporta ningún tipo de información relevante.
+  
+  -Name      -> Nombre del individuo.
+  
+  -...26     -> Correo electronico del individuo.
+  
+  -Pais      -> El pais de origen.
+
+```{r,include=TRUE}
+soet2_clean <- soet2 %>% select(-c(1,2,5,26))
+```
+
+A continuación, se modificarán los nombres de las variables para facilitar su uso.
+
+```{r, include=TRUE}
+soet2_clean <- soet2_clean %>% rename(edad = `Age group`,
+                       casado = `Marital status`,
+                       experiencia = `Work experience`,
+                       educacion = `Educational Qualification`,
+                       estudiante = `Are you still studying?`,
+                       titulo_es_importante = `Do you believe degree is a must for job?`,
+                       trabajo_soñado = `Interested area of work`,
+                       con_empleo = `Currently employed`,
+                       año_sabatico= `Did you have a career break?`,
+                       cambio_de_carrera = `Did you switch your career?`,
+                       motivo_cambio = `Reason for shift in career?`,
+                       buscando_trabajo = `Are you actively applying for job?`,
+                       skills = `Skills that you are confident`,
+                       preferencia_sector_trabajo = `Job preference`,
+                       trabajo_independiente = `Have you carried out any independent works or projects?`,
+                       donde_buscas_trabajo = `Where do you search for Job?`,
+                       ofertas_de_trabajo = `Are you receiving response from recruiter after applying?`,
+                       freelance = `Are you interested in Freelancing?`,
+                       compañia_soñada = `Dream company type?`,
+                       preferencia_tipo_trabajo = `Preference of work`,
+                       problemas_encontrar_trabajo = `What are the problems faced while job search?`)
+
+
+
+```
+
+Se comprueban que ninguna variable tenga datos repetidos.
+
+```{r,include=TRUE}
+##Funcion cambio para modificar variables de las columnas 
+cambio <- function(datos,palabras,cambio){
+  datos <- if_else(condition =  datos %in% palabras, true = cambio,false = datos)
+}
+
+```
+
+```{r,include=TRUE}
+##Esta función muestra los diferentes estados de las variables.
+lapply(soet2_clean,unique)
+
+##Para soet2_clean$educacion 
+soet2_clean$educacion <- cambio(soet2_clean$educacion, c("diploma"),"Diploma")
+soet2_clean$educacion <- cambio(soet2_clean$educacion, c("Bsc physics","Bsc Physics","BSC physics"),"BSC Physics")
+soet2_clean$educacion <- cambio(soet2_clean$educacion, c("bvoc in software development" ,"Bvoc in software development","B.voc Software development"),"Bvoc in software development")
+soet2_clean$educacion <- cambio(soet2_clean$educacion, c("M tech","M. tech" ),"Mtech")
+soet2_clean$educacion <- cambio(soet2_clean$educacion, c("BVOC IN SOFTWARE DEVELOPMENT","BVOC SOFTWARE DEVELOPMENT","BVOC in software development","BVOC IT IN SOFTWARE DEVELOPMENT"),"Bvoc in software development")
+soet2_clean$educacion <- cambio(soet2_clean$educacion, c("MSc"),"Msc")
+```
+
+Y así será para las demas variables que presenten repetición en los estados que toma.
+
+```{r,include=TRUE}
+##Trabajo soñado
+soet2_clean$trabajo_soñado <- cambio(soet2_clean$trabajo_soñado, c("Medical"), "Medicine")
+
+##Skills
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Excel;", "Excel;Other"), "Excel")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Excel;Python;Other"), "Excel;Python")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Excel;Python;Sql;Other"), "Excel;Python;Sql")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Excel;Python;Sql;Other;Saas, ML"), "Excel;Python;Sql;Saas, ML")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Excel;Sql;Other;Powerbi"), "Excel;Sql;Powerbi")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Other;C,c++, electronics, embedded systems, embedded c,"), "C,c++, electronics, embedded systems, embedded c")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Other;Design, editing"), "Design, editing")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Python;Other"), "Python")
+soet2_clean$skills <-  cambio(soet2_clean$skills,c("Python;Sql;Other"  ), "Python,Sql")
+
+##Donde_busco_trabajo
+soet2_clean$donde_buscas_trabajo <-
+  cambio(soet2_clean$donde_buscas_trabajo,c("Linkedin;"),"Linkedin")
+soet2_clean$donde_buscas_trabajo <- 
+  cambio(soet2_clean$donde_buscas_trabajo,c("Naukri;Linkedin;" ),"Naukri;Linkedin" )
+soet2_clean$donde_buscas_trabajo <- 
+  cambio(soet2_clean$donde_buscas_trabajo,c("Naukri;Linkedin;Indeed;" ),"Naukri;Linkedin;Indeed" )
+soet2_clean$donde_buscas_trabajo <- 
+  cambio(soet2_clean$donde_buscas_trabajo,c("Naukri;Linkedin;Indeed;Instagram, Facebook" ),"Naukri;Linkedin;Indeed;Instagram;Facebook" )
+soet2_clean$donde_buscas_trabajo <- 
+  cambio(soet2_clean$donde_buscas_trabajo,c("Naukri;Linkedin;Indeed;Monster;" ),"Naukri;Linkedin;Indeed;Monster" )
+
+#compañia_soñada
+soet2_clean$compañia_soñada <- cambio(soet2_clean$compañia_soñada,
+       c("multinational companies","Multinationals"),
+       "MNC")
+
+
+soet2_clean_sin_binarizar <- soet2_clean
+```
+
+
+
+Y se binarizan aquellas que tienen más de un valor con la libreria ```fastDummies```.
+
+```{r, include=TRUE}
+library(fastDummies)
+
+columnas <- c("skills","preferencia_sector_trabajo","donde_buscas_trabajo","compañia_soñada")
+
+soet2_clean <- soet2_clean %>% dummy_cols(columnas) %>% select(-columnas)
+```
+
+Y se procesa la información de las variables repetidas.
+
+```{r, include=TRUE}
+n <- rep(0,length(soet2_clean$edad))
+
+## skills_C,c++, electronics, embedded systems, embedded c
+v <- which(soet2_clean$`skills_C,c++, electronics, embedded systems, embedded c` == 1)
+soet2_clean$skills_C <- n
+soet2_clean$`skills_c++` <- n
+soet2_clean$skills_electronics <- n
+soet2_clean$skills_embedded_systems <- n
+soet2_clean$skills_embedded_c <- n
+
+soet2_clean$skills_C[v] <- 1
+soet2_clean$`skills_c++`[v] <- 1
+soet2_clean$skills_electronics[v] <- 1
+soet2_clean$skills_embedded_systems[v] <- 1
+soet2_clean$skills_embedded_c[v] <- 1
+
+soet2_clean$`skills_C,c++, electronics, embedded systems, embedded c` <- NULL
+
+##skills_Design, editing
+
+v <- which(soet2_clean$`skills_Design, editing` == 1)
+soet2_clean$skills_Design <- n
+soet2_clean$skills_editing <- n
+
+soet2_clean$skills_Design[v] <- 1
+soet2_clean$skills_editing[v] <- 1
+
+soet2_clean$`skills_Design, editing` <- NULL
+
+##skills_Excel;Digital marketing,web designing
+v <- which(soet2_clean$`skills_Excel;Digital marketing,web designing` == 1)
+
+soet2_clean$skills_Excel[v] <- 1 
+soet2_clean$skills_Design[v] <- 1
+soet2_clean$skills_Digital_Marketing <- n
+soet2_clean$skills_Digital_Marketing[v] <- 1 
+
+soet2_clean$`skills_Excel;Digital marketing,web designing` <- NULL
+
+##skills_Excel;Python
+v <- which(soet2_clean$`skills_Excel;Python` == 1)
+
+soet2_clean$skills_Excel[v] <- 1 
+soet2_clean$skills_Python[v] <- 1
+
+soet2_clean$`skills_Excel;Python` <- NULL
+
+##skills_Excel;Python;CAD/CAM, MATLAB
+v <- which(soet2_clean$`skills_Excel;Python;CAD/CAM, MATLAB` == 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_Python[v] <- 1
+
+soet2_clean$skills_CAD_CAM <- n
+soet2_clean$skills_CAD_CAM[v] <- 1
+
+soet2_clean$`skills_Excel;Python;CAD/CAM, MATLAB` <- NULL
+
+##skills_Excel;Python;Sql
+v <- which(soet2_clean$`skills_Excel;Python;Sql` == 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_Python[v] <- 1
+soet2_clean$skills_Sql[v] <- 1
+
+soet2_clean$`skills_Excel;Python;Sql` <- NULL
+
+##skills_Excel;Python;Sql;Tableau
+v <- which(soet2_clean$`skills_Excel;Python;Sql;Tableau` == 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_Python[v] <- 1
+soet2_clean$skills_Sql[v] <- 1
+
+soet2_clean$skills_Tableau <- n
+soet2_clean$skills_Tableau[v] <- 1
+
+soet2_clean$`skills_Excel;Python;Sql;Tableau` <- NULL
+
+##skills_Excel;Python;Wordpress
+v <- which(soet2_clean$`skills_Excel;Python;Wordpress` == 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_Python[v] <- 1
+
+soet2_clean$skills_Wordpress <- n
+soet2_clean$skills_Wordpress[v] <- 1
+
+soet2_clean$`skills_Excel;Python;Wordpress` <- NULL
+
+##skills_Excel;Rivet,cad
+v <- which(soet2_clean$`skills_Excel;Rivet,cad` == 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_CAD_CAM[v] <- 1
+
+soet2_clean$skills_Rivet <- n
+soet2_clean$skills_Rivet[v] <- 1
+
+soet2_clean$`skills_Excel;Rivet,cad` <- NULL
+
+##skills_Excel;Sql
+v <- which(soet2_clean$`skills_Excel;Sql`== 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_Sql[v] <- 1
+
+soet2_clean$`skills_Excel;Sql` <- NULL
+
+##skills_Excel;Sql;Powerbi
+v <- which(soet2_clean$`skills_Excel;Sql;Powerbi`== 1)
+
+soet2_clean$skills_Excel[v] <- 1
+soet2_clean$skills_Sql[v] <- 1
+
+soet2_clean$skills_Powebi <- n
+soet2_clean$skills_Powebi[v] <- 1
+
+soet2_clean$`skills_Excel;Sql;Powerbi` <- NULL
+
+##skills_Python,Sql
+v <- which(soet2_clean$`skills_Python,Sql`== 1)
+
+soet2_clean$skills_Python[v] <- 1
+soet2_clean$skills_Sql[v] <- 1
+
+
+soet2_clean$`skills_Python,Sql` <- NULL
+
+##skills_Python;Css, html
+v <- which(soet2_clean$`skills_Python;Css, html`== 1)
+
+soet2_clean$skills_Python[v] <- 1
+
+soet2_clean$skills_Css <- n
+soet2_clean$skills_Css[v] <- 1
+
+soet2_clean$skills_Html <- n
+soet2_clean$skills_Html[v] <- 1
+
+soet2_clean$`skills_Python;Css, html` <- NULL
+
+##skills_Python;Other;html, css, bootstrap
+v <- which(soet2_clean$`skills_Python;Other;html, css, bootstrap`== 1)
+
+soet2_clean$skills_Python[v] <- 1
+soet2_clean$skills_Css[v] <- 1
+soet2_clean$skills_Html[v] <- 1
+
+soet2_clean$skills_Bootstrap <- n
+soet2_clean$skills_Bootstrap[v] <- 1
+
+soet2_clean$`skills_Python;Other;html, css, bootstrap` <- NULL
+
+##skills_Python;Sql
+v <- which(soet2_clean$`skills_Python;Sql`== 1)
+
+soet2_clean$skills_Python[v] <- 1
+soet2_clean$skills_Sql[v] <- 1
+
+
+soet2_clean$`skills_Python;Sql` <- NULL
+
+##skills_Sql;Angular,Dotnet
+v <- which(soet2_clean$`skills_Sql;Angular,Dotnet`== 1)
+
+soet2_clean$skills_Sql[v] <- 1
+
+soet2_clean$skills_Dotnet <- n
+soet2_clean$skills_Dotnet[v] <- 1
+
+soet2_clean$skills_Angular <- n
+soet2_clean$skills_Angular[v] <- 1
+
+soet2_clean$`skills_Sql;Angular,Dotnet` <- NULL
+
+##preferencia_sector_trabajo_Government;Business
+v <- which(soet2_clean$`preferencia_sector_trabajo_Government;Business`== 1)
+
+soet2_clean$preferencia_sector_trabajo_Business[v] <- 1
+soet2_clean$preferencia_sector_trabajo_Government[v] <- 1
+
+soet2_clean$`preferencia_sector_trabajo_Government;Business` <- NULL
+
+##preferencia_sector_trabajo_Government;Private
+v <- which(soet2_clean$`preferencia_sector_trabajo_Government;Private`== 1)
+
+soet2_clean$preferencia_sector_trabajo_Private[v] <- 1
+soet2_clean$preferencia_sector_trabajo_Government[v] <- 1
+
+soet2_clean$`preferencia_sector_trabajo_Government;Private` <- NULL
+
+##preferencia_sector_trabajo_Government;Private;Business
+v <- which(soet2_clean$`preferencia_sector_trabajo_Government;Private;Business`== 1)
+
+soet2_clean$preferencia_sector_trabajo_Private[v] <- 1
+soet2_clean$preferencia_sector_trabajo_Government[v] <- 1
+soet2_clean$preferencia_sector_trabajo_Business[v] <- 1
+
+soet2_clean$`preferencia_sector_trabajo_Government;Private;Business` <- NULL 
+
+##preferencia_sector_trabajo_Private;Business
+v <- which(soet2_clean$`preferencia_sector_trabajo_Private;Business`== 1)
+
+soet2_clean$preferencia_sector_trabajo_Private[v] <- 1
+soet2_clean$preferencia_sector_trabajo_Business[v] <- 1
+
+soet2_clean$`preferencia_sector_trabajo_Private;Business` <- NULL 
+
+##donde_buscas_trabajo_Linkedin;Indeed
+v <- which(soet2_clean$`donde_buscas_trabajo_Linkedin;Indeed`== 1)
+
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Linkedin;Indeed` <- NULL
+
+##donde_buscas_trabajo_Linkedin;Indeed;Monster
+v <- which(soet2_clean$`donde_buscas_trabajo_Linkedin;Indeed;Monster`== 1)
+
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Monster[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Linkedin;Indeed;Monster` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Fiverr
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Fiverr`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+
+soet2_clean$donde_buscas_trabajo_Fiverr <- n
+soet2_clean$donde_buscas_trabajo_Fiverr[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Fiverr` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Indeed
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Indeed;Google
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Google`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+
+soet2_clean$donde_buscas_trabajo_Google <- n
+soet2_clean$donde_buscas_trabajo_Google[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Google` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Indeed;Instagram;Facebook
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Instagram;Facebook`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+
+soet2_clean$donde_buscas_trabajo_Instagram <- n
+soet2_clean$donde_buscas_trabajo_Instagram[v] <- 1
+
+soet2_clean$donde_buscas_trabajo_Facebook <- n
+soet2_clean$donde_buscas_trabajo_Facebook[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Instagram;Facebook` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Indeed;Monster
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Monster`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+soet2_clean$donde_buscas_trabajo_Monster[v] <- 1
+
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Monster` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Indeed;Monster;Hirist
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Monster;Hirist`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+soet2_clean$donde_buscas_trabajo_Indeed[v] <- 1
+soet2_clean$donde_buscas_trabajo_Monster[v] <- 1
+
+soet2_clean$donde_buscas_trabajo_Hirist <- n
+soet2_clean$donde_buscas_trabajo_Hirist[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Indeed;Monster;Hirist` <- NULL
+
+##donde_buscas_trabajo_Naukri;Linkedin;Monster
+v <- which(soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Monster`== 1)
+
+soet2_clean$donde_buscas_trabajo_Linkedin[v] <- 1
+soet2_clean$donde_buscas_trabajo_Naukri[v] <- 1
+soet2_clean$donde_buscas_trabajo_Monster[v] <- 1
+
+soet2_clean$`donde_buscas_trabajo_Naukri;Linkedin;Monster` <- NULL
+
+##compañia_soñada_Amazon,Google,Apple
+v <- which(soet2_clean$`compañia_soñada_Amazon,Google,Apple`== 1)
+
+soet2_clean$compañia_soñada_Apple[v] <- 1
+
+soet2_clean$compañia_soñada_Google <- n
+soet2_clean$compañia_soñada_Google[v] <- 1
+
+soet2_clean$compañia_soñada_Amazon <- n
+soet2_clean$compañia_soñada_Amazon[v] <- 1
+
+soet2_clean$`compañia_soñada_Amazon,Google,Apple` <- NULL
+
+##compañia_soñada_All types
+v <- which(soet2_clean$`compañia_soñada_All types`== 1)
+
+soet2_clean$compañia_soñada_Apple[v] <- 1
+soet2_clean$compañia_soñada_Google[v] <- 1
+soet2_clean$compañia_soñada_Amazon[v] <- 1
+soet2_clean$compañia_soñada_Both[v] <- 1
+soet2_clean$`compañia_soñada_Interior design`[v] <- 1
+soet2_clean$compañia_soñada_MNC[v] <- 1
+soet2_clean$`compañia_soñada_Product based`[v] <- 1
+soet2_clean$compañia_soñada_Startup[v] <- 1
+
+soet2_clean$`compañia_soñada_All types` <- NULL
+```
+
+Con estos cambios el dataset ya esta listo para ser analizado.
+
+
+```{r, include=FALSE, eval=FALSE}
+##Paises
+soet2_clean$pais <- cambio(soet2_clean$pais,c("thrissur"),"Thrissur")
+soet2_clean$pais <- cambio(soet2_clean$pais,c("Mysuru"),"Mysore")
+soet2_clean$pais <- cambio(soet2_clean$pais,c("Bengalore"),"Bangalore")
+soet2_clean$pais <- cambio(soet2_clean$pais,c("KOZHIKODE"),"Kozhikode")
+soet2_clean$pais <- cambio(soet2_clean$pais,c("KOCHI","kochi"),"Kochi")
+soet2_clean$pais <- cambio(soet2_clean$pais,c("wayanad"),"Wayanad")
+
+
+
+## Para la variable pais_Calicut,vadakara
+v <- which(soet2_clean$`pais_Calicut,vadakara` == 1)
+soet2_clean$pais_Calicut[v] <- 1
+soet2_clean$pais_Vadakara <- n
+soet2_clean$pais_Vadakara[v] <- 1 
+
+soet2_clean$`pais_Calicut,vadakara` <- NULL
+
+## Para la variable pais_Kakkove, Malappuram
+v <- which(soet2_clean$`pais_Kakkove, Malappuram` == 1)
+soet2_clean$pais_Kakkove <- n
+soet2_clean$pais_Kakkove[v] <- 1
+soet2_clean$pais_Malappuram[v] <- 1
+soet2_clean$`pais_Kakkove, Malappuram` <- NULL
+
+##pais_MALAPPURAM, KALIKAVU
+v <- which(soet2_clean$`pais_MALAPPURAM, KALIKAVU` == 1)
+soet2_clean$pais_Malappuram[v] <- 1
+soet2_clean$pais_Kalikavu <- n
+soet2_clean$pais_Kalikavu[v] <- 1 
+soet2_clean$`pais_MALAPPURAM, KALIKAVU` <- NULL
+
+## pais_Siddapur, Kodagu, Karnataka
+v <- which(soet2_clean$`pais_Siddapur, Kodagu, Karnataka` == 1)
+soet2_clean$pais_Siddapur <- n
+soet2_clean$pais_Kodagu <- n
+soet2_clean$pais_Karnataka[v] <- 1
+soet2_clean$pais_Kodagu[v] <- 1
+soet2_clean$pais_Siddapur[v] <- 1
+
+soet2_clean$`pais_Siddapur, Kodagu, Karnataka` <- NULL
+
+## pais_Thalassery, kannur
+v <- which(soet2_clean$`pais_Thalassery, kannur` == 1)
+soet2_clean$pais_Thalassery <- n
+soet2_clean$pais_Kannur[v] <- 1
+soet2_clean$pais_Thalassery[v] <- 1 
+
+soet2_clean$pais_Thalassery <- NULL
+
+```
+
+
+

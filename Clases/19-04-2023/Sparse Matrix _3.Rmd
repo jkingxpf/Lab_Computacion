@@ -1,0 +1,120 @@
+---
+title: "Matrices Dispersas en R - III"
+author: "Ángel Mora Bonilla"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+<span style='font-size:1.5em'>**Laboratorio de Computación Científica** </span>
+
+<span style='font-size:1.5em'>  Abril de 2018</span>
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/R_logo.svg/2000px-R_logo.svg.png){ width=30% }
+ 
+#  
+
+```{r, echo=TRUE,eval=TRUE,display=TRUE,warning=FALSE}
+library(Matrix)
+v <- 1 + 1:15
+M <- Matrix(v, 60, 50)
+M
+str(M)
+# Ejemplo de operaciones con matrices dispersas
+M1 <- M %*% t(M)
+# Añadir filas o columnas
+M2 <- cBind(1, M1)
+M2
+M3 <- rBind(1,M2)
+M3
+dim(M2)
+dim(M3)
+
+# Transformamos la matriz M3 añadiendo muchos 0's
+M3[,3:55] <- 0
+M3[1:15,2] <-0
+M3
+#Comprobamos tamaños
+object.size(M3)
+M4 <-as(M3, "sparseMatrix")
+object.size(M4)
+# Comprobar si es dispersas
+is(M3,"sparseMatrix")
+is(M4,"sparseMatrix")
+#Comprobamos si son identicas
+identical(M3,M4)
+#Resumen de ambas
+summary(M3)
+summary(M4)
+
+# Operaciones aritméticas - deja de ser dispersa
+M5 <- M4+1
+is(M5,"sparseMatrix")
+object.size(M5)
+
+# Operadores lógicos con matrices dispersas
+# Mindex es una matriz dispersa lógica
+Mindex <- (M4>=1)
+Mindex
+Mindex[1,1]
+Mindex[1,2]
+summary(Mindex)
+
+```
+
+## Accediendo a la estructura - objetos S4
+
+Para acceder a los slots que proporciona la clase se usa **@**
+```{r, echo=TRUE,eval=TRUE,display=TRUE,warning=FALSE}
+M10 <- Matrix(1,3,3,sparse = TRUE)
+str(M10)
+# Dimensión de matríz
+M10@Dim
+# the non-zero elements of the matrix
+M10@x
+#uplo:
+# upper triangle ("U") 
+# lower triangle ("L") 
+M10@uplo
+```
+
+
+  
+Al operar con matrices dispersas podrían aparecer 0's en dicha matriz, en ese caso usar comando **drop0**.
+
+```{r, echo=TRUE,eval=TRUE,display=TRUE,warning=FALSE}
+
+# los valores de Mindex antes de hacer drop0
+str(Mindex@x)
+Mindex <- drop0(Mindex)
+# los valores de Mindex después
+str(Mindex@x)
+
+```
+
+Algunas operaciones con estas matrices:
+```{r, echo=TRUE,eval=TRUE,display=TRUE,warning=FALSE}
+sym <- is(M5, "symmetricMatrix")
+sym
+# Operaciones habituales trabajan con matrices dispersas
+#exp(M5)
+#sin(M5)
+#round(M5,digits = 2)
+#min(M5)
+#sum(M5)
+# Extraer índices y valores que cumplen ciertas condiciones
+which(M5>10000)
+M5[M5>10000]
+```
+
+## Visualización
+
+```{r, echo=TRUE,eval=TRUE,display=TRUE,warning=FALSE}
+# Albers' example Matrix with "Difficult" Eigen Factorization
+data(CAex)
+dim(CAex)
+print(image(CAex, main = "image(CAex)"))
+```
+
+

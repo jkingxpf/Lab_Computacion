@@ -1,0 +1,81 @@
+```{r}
+library(readr)
+library(fcaR)
+city <- read_csv("city.csv")
+View(city)
+
+nombres <- city$...1
+
+city$...1 <- NULL
+
+rownames(city) <- nombres
+
+
+fc <- FormalContext$new(city)
+
+objetos <- fc$objects
+atributos <- fc$attributes
+
+fc
+
+fc$plot()
+fc$find_concepts()
+fc$concepts$plot()
+```
+
+Vamos a realizar una busqueda de conceptos para el usuario 1 50 y 100
+
+```{r}
+S <- Set$new(attributes = objetos)
+S$assign(attributes = c("user1","user2"),
+         values = c(1,1) )
+
+fc$intent(S)
+
+SS <- Set$new(attributes = atributos)
+SS$assign(attributes = c("POI1"),
+          value = c(1))
+
+fc$extent(SS)
+S
+
+S$assign(attributes = c("user1",
+                        "user2",
+                        "user9",
+                        "user13",
+                        "user14",
+                        "user23",
+                        "user37",
+                        "user55",
+                        "user56",
+                        "user61",
+                        "user64",
+                        "user65",
+                        "user75",
+                        "user77",
+                        "user85",
+                        "user86",
+                        "user89"),
+         values = rep(1,17))
+
+fc$intent(S)
+
+fc$plot()
+
+fc$find_concepts()
+
+subset(fc$concepts, fc$concepts %in% c("POI1") )
+
+fc$concepts$subconcepts()
+
+fc$find_implications()
+
+fc$implications$filter(lhs = c("POI1"))
+
+fc$implications$apply_rules(c("composition", "generalization","simplification",
+                              "r-simplification"))
+
+fc$closure(SS)
+```
+concepto formal {user1, user2, user9, user13, user14, user23, user37, user55, user56, user61, user64, user65, user75,
+  user77, user85, user86, user89}=> {POI1}

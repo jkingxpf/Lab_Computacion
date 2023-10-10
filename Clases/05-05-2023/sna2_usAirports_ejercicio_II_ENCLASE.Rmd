@@ -1,0 +1,152 @@
+---
+title: "Análisis de Redes Sociales - USairports  - II"
+author:
+- affiliation: Laboratorio de Computación Científica - Universidad de Málaga 
+  name: xxxx
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+<!-- para colocar una imagen -->
+<!-- ![](redes.png) -->
+
+```{r}
+library(igraph)
+library(igraphdata)
+library(tidyverse)
+data("USairports")
+```
+
+ 
+# Ejercicio
+
+ 
+Nota: Buscar información en   [https://igraph.org/r/](https://igraph.org/r/)  si hay algún comando que **no conoces**.
+
+Cargamos la librería **igraphdata** y el dataset  **USairports**. 
+
+
+
+1. Cambia el nombre al grafo (nuevo nombre US) usando:``graph_attr``.  
+
+```{r}
+us <- USairports
+```
+
+2. Extrae los nombres de los 5 primeros compañías aéreas (carrier).   ¿Cuántas salidas tiene cada una de estas compañías?.
+
+```{r}
+variables <- vertex_attr_names(us)
+
+n <- length(variables)
+tabla <- sapply(1:n,function (x) head(vertex_attr(us)[[x]]))
+tabla
+```
+
+3. Mira toda la información de las 5 primeras conexiones  (arcos) entre los   aeropuertos.
+
+4. Usa ``V()`` y las funciones de manejo de listas para añadirle un nuevo atributo a los vértices: *Group* que va a tener como valor para cada aeropuerto los valores "A" o "B" aleatoriamente. 
+
+```{r}
+V(us)$Group <- sample(c("A","B"),
+                      size = vcount(us),
+                      replace = T)
+str(us)
+```
+
+5. Analizar qué hacen las siguientes órdenes:
+```{r,eval=FALSE}
+#Selector de arcos:  $\%--\%$ para acceder a los arcos entre dos vértices. 
+E(USairports)["JFK" %--% "BOS"] 
+# Si los arcos son dirigidos
+unique(E(USairports)["JFK" %->% "BOS"]$Carrier) 
+```
+6. Analizar qué hacen las siguientes órdenes:
+```{r,eval=FALSE}
+#Los selectores se pueden usar entre grupos de  vértices. 
+#Todos los vuelos de  California a New York # Buscar patrón (grep -pattern matching), el código de estado de el código de la ciudad 
+inCal <- grepl("CA$", V(USairports)$City)
+V(us)$City[inCal]
+
+inNy <- grepl("NY$", V(USairports)$City)
+V(us)$City[inNy]
+
+# Arcos de   CA a NY
+E(USairports)[V(USairports)[inCal] %->% V(USairports)[inNy]]
+
+```
+
+7. Eliminar la conexión entre *BJC* y *MIA*.
+```{r}
+us <- us - E(us)["BJC"%--%"MIA"]
+```
+
+8. Encontrar las conexiones directas desde *BOS*.
+```{r}
+E(us)["BOS" %->% V(us)$name]
+
+E(us)["BOS" %->% E(us)] == E(us)["BOS" %->% V(us)$name]
+
+```
+
+9. Encontrar las conexiones directas a *BOS*.
+```{r}
+E(us)["BOS" %<-% E(us)]
+```
+
+10. Caminos y distancias entre dos aeropuertos. Explica cómo calcularlas. ¿Qué conexiones entre aeropuertos están a más de 1000 km? (la cuestión es sobre el metadato Distance)
+```{r}
+indices <- E(us)$Distance > 1000
+
+E(us)[indices]
+```
+
+11. ¿Cuantas conexiones de entrada y salida tiene el primer aeropuerto?
+12. ¿Cuales son las ciudades vecinas de *Bangor* (conectadas por vuelos directamente) Usa ``neighbors``.
+```{r}
+indices <- which(grepl("Bangor", V(us)$City))
+
+neighbors(us, V(us)[indices], mode = "all")
+```
+
+13. Analizar qué hacen las siguientes órdenes:
+```{r,eval=FALSE}
+# Extraer todos los vecinos de un vértice particular a una distancia $d$:
+# Vértices a distancia 2 de JFK y  LAX
+d2Vertices <- ego(USairports, nodes = c("JFK","LAX"), order=2)
+# Vecinos de un vértice como un nuevo gráfico 
+JFKNet <- make_ego_graph(USairports, nodes = "JFK", order=2) 
+
+plot(JFKNet[[1]])
+```
+
+14. Pasar el grafo a un dataframe. 
+
+```{r}
+us_data <- igraph :: as_data_frame(us,"both")
+
+
+```
+
+15. Pasar el grafo a una matriz  y encontrar los aeropuertos conectados por tres escalas. Guardar en un grafo y visualizarlo.
+```{r}
+us_matrix <- as_adjacency_matrix(us)
+us_matrix[1:10,1:10]
+
+apply(us_matrix,2,function(x) M[,x] == 3)
+```
+
+16. Aplicar a este grafo, las distintas medidas de calidad de grafos vistos en clase: tamaño, diámetro, clustering, transitividad, etc.  Buscar información en   [https://igraph.org/r/](https://igraph.org/r/). Analizar cuales son los *mejores* nodos, vértices según las distintas medidas.  
+17. Eliminar ciclos en el grafo. Buscar información de ``simplify``.
+18. Genera dos índices de vértices aleatoriamente entre los posibles, seleccióna dichos vértices y calcula la distancia a la que están y el camino más corto entre ellos.
+19. Calcular los 2 vértices conectados a más vértices.
+20. Calcula la menor distancia entre dos aeropuertos y di los vértices a esa distancia.
+21.  ¿En qué posición está **JFK** según la medida pagerank?

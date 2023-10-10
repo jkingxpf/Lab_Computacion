@@ -1,0 +1,216 @@
+# Formal concept analysis
+
+Formal Concept Analysis (FCA) es un método de análisis que describe relaciones entre los diferentes atributos(variables) y objetos(individuos) de un dataset. FCA produce dos tipos diferentes de salida de datos, concepts lattace e implicaciones de atributos. El primero es una colección de conceptos formales en los datos, que están ordenados jerárquicamente por una relación de subconcepto-superconcepto.El segundo es un conjunto de reglas parecidas a las calculadas por reglas de asociación que describe una dependencia entre el antecedente y el consecuente, como por ejemplo; todo número divisible por dos es un número par.
+
+## Preprocesamiento del dataset.
+
+FCA requiere de un dataset binarizado (cuyas variables sean 0 ó 1), o continuas (entre 0 y 1), para poder ejecutar el algoritmo. Para ello usaremos la librería `fastDummies` para binarizar el dataset rápidamente.
+
+```{r, echo = TRUE, warning=FALSE}
+library(fastDummies)
+```
+
+Se escogen las variables más interesantes del dataset para ejecutar el algoritmo, debido a la gran cantidad de variables que se calcularían si binarizamos todas las variables.
+
+Estas seran las columnas seleccionadas que nos aportan información más relevante.
+
+```{r, include=TRUE}
+##Columnas qmas relevantes.
+soet2_fca <- soet2_clean %>% select(-c(7,10,11))
+```
+
+Ahora se binariza las columnas que hemos selecionado para empezar a trabajar con el método FCA.
+
+```{r, include=TRUE}
+##Binarizamos las que no estan binarizadas
+columnas <- colnames(soet2_fca[1:15])
+
+
+#Este comando no elimina las variables que se han binarizadas así que se tendrán que eliminar manualmente.
+soet2_bin <- dummy_cols(soet2_fca, columnas) %>% 
+  select(-columnas) 
+
+##Aquellas que sean una variable en estado No las eliminamos
+c <- colnames(soet2_bin)
+
+##El comando `grepl` es usado para saber si una cadena x pertenece o no como subcadena de otra y
+soet2_bin <- soet2_bin %>% select(-which(grepl("_No", c)))
+dim(soet2_bin)  
+```
+## Analisis de los datos.
+
+Con el dataset binarizado ya se puede empezar a extraer información con el algoritmo FCA.Para ello se usa la librería ```fcaR``` que permitirá implementar el algoritmo.
+
+```{r,echo=TRUE,warning=FALSE}
+library(fcaR)
+```
+
+Se crea un objeto FormalContext.
+
+```{r, include=TRUE}
+fc <- FormalContext$new(soet2_bin)
+
+fc$plot()
+```
+
+Aquí se puede ver la matriz binaria de manera más visual, representando los unos con cuadrados negros.
+
+### Análisis con conceptos formales
+
+Primero se buscan todos los conceptos que existen en el dataframe.
+
+```{r, include=TRUE}
+fc$find_concepts()
+
+fc$concepts$size()
+```
+
+Con la función ```concepts$plot``` se puede visualizar una gráfica que representa los atributos que tienen relación entre ellos. 
+
+```{r,eval=FALSE}
+##Debido a la cantidad de los conceptos esta función tardará en terminar de ejecutarse, por ello no se ejecuta.
+fc$concepts$plot()
+```
+
+Estos son los diez primeros conceptos.
+
+```{r, include=TRUE}
+head(fc$concepts,10)
+
+```
+Al ejecutar el comando ```find_concepts``` se calcularán todas las relaciones que existan en el dataset, mostrando una cadena de individuos u objetos y una lista de los atributos que comparten.
+
+Si se necesita saber solo un concepto formal donde aparezca algunos de los atributos, como por ejemplo, menor a veinticinco años y que desee trabajar en data science, se usará el objeto Set de esta librería.
+
+```{r, include=TRUE}
+#Colocamos los atributos de la variable fc
+S <- Set$new(fc$attributes)
+
+```
+
+
+Se asignan los atributos que se desean encontrar el concepto,
+```{r}
+S$assign(`edad_<25` = 1, `trabajo_soñado_Data science/ Data Analytics` = 1 )
+```
+
+y ejecutamos la función `fc$closure` para así encontrar los atributos que conforman el concepto formal.
+
+```{r,include=TRUE}
+fc$closure(S)
+```
+En este ejemplo, solo devuelve un concepto con los atributos dados lo que indica que hay individuos con estos elementos en común. 
+
+Con este método tambien se puede seleccionar atributos según unos individuos elegidos.
+
+```{r, include=TRUE}
+##El mismo procedimiento que el anterior pero metiendo en el set los objetos de fc
+SS <- Set$new(fc$objects)
+
+##Este comando muestra los objetos que tienen en común los atributos de S
+fc$extent(S)
+
+##Cogeremos los elementos 2,7,12,13 y 18 que sabemos que tienen en común la edad menor de 25 y el trabajo soñado de data science.
+SS$assign(c(2,7,12,13,18), rep(1,5))
+
+
+##Usamos intent para saber los atributos que tienen en común los objetos selecionados
+fc$intent(SS)
+```
+
+Se puede ver que para estos cinco individuos los atributos que comparten son la edad, el trabajo soñado, su estado civil,saben usar python, y buscan trabajo en linkedin.
+
+Este tipo de métodos sirven para establecer relaciones entre individuos especificos a partir de sus atributos, o para saber si algún atributo tambien es compartido por otros y entre que individuos se coparten. Aunque este tipo de información ya esta recogida en la salida de ```fc$find_concept()``` puede ser útil si la mágnitud del dataset es muy grande o no es necesario calcularlos para la totalidad de los atributos.
+
+
+### Análisis de implicaciones
+
+Otro manera de analizar los datos con FCA es a partir de las implicaciones generadas. Para ello usaremos el comando ```fc$find_implications()``` para encontrar todas las implicaciones.
+
+```{r, include=TRUE}
+fc$find_implications()
+
+##Cantidad de reglas
+fc$implications$cardinality()
+
+##Lista de elementos de cada reglas a izquierda(LHS) y derecha(RHS)
+tamaño <- fc$implications$size() 
+
+##Media de terminos en las reglas
+colMeans(tamaño)
+```
+
+Eliminamos las reglas con soporte igual a 0.
+
+```{r, include=TRUE}
+which(fc$implications$support() == 0)
+
+##Eliminamos estos elementos
+
+fc$implications <- fc$implications[which(fc$implications$support() != 0)]
+
+##Comprobamos que se ha echo correctamente
+which(fc$implications$support() == 0)
+
+```
+
+Estas reglas pueden ser reducidas y simplificadas, para ello usaremos el comando ```fc$implications$apply_rules()``` para simplificar y reducir las reglas y la cantidad de ellas.
+
+```{r, include=TRUE}
+fc$implications$apply_rules(c("composition", "generalization", "simplification", "rsimplification"))
+
+fc$implications$cardinality()
+
+tamaño <- fc$implications$size() 
+
+colMeans(tamaño)
+```
+
+Con las implicaciones procesadas y filtradas se pueden localizar, por ejemplo, las diez implicaciones con mayor soporte y asi análizar las relaciones más importantes para el dataset.
+
+```{r, include=TRUE}
+head(fc$implications[order(fc$implications$support(), decreasing = T )],10)
+```
+De esta muestra de diez implicaciones ya se pueden sacar diferentes conclusiones, por ejemplo, observemos las reglas uno, dos, cinco, seis y diez:
+  -Rule 1: los varones estan solteros.
+  -Rule 2: Las personas que buscan trabajo en Naukri y estan solteras prefieren trabajar en el sector privado.
+  -Rule 5: Las personas que trabajan en el sector privado y han estudiado Btech buscan trabajo en linkedin.
+  -Rule 9: Las personas que saben usar sql y son menores de edad estan solteras.
+
+Este sería la manera de interpretar las reglas resultantes del analisis, proceso que se llevará acabo con todas las reglas encontradas. Sin embargo si solo son interesantes aquellas que contengan en el antecedente o en el consecuente algún atributo en especifico, es posible usar el comando ```$filter``` del objeto fc.
+
+Por ejemplo, se consultarán las reglas que tengan el atributo ```edad_<25``` en el antecedente y en el consecuente y despues se buscarán las implicaciones que no contengan el atributo ````con_empleo_Yes``` ni en el antecedente ni en el consecuente.
+
+```{r, include=TRUE}
+##Con el atributo edad_<25
+ant_menor <- fc$implications$filter(lhs = "edad_<25")
+
+#Las seis primeras reglas
+cat("Las primeras seis con edad_<25 en el antecedente")
+head(ant_menor,6)
+
+cons_menor <- fc$implications$filter(rhs = "edad_<25")
+
+#Las seis primeras reglas
+cat("Las primeras seis con edad_<25 en el consecuente")
+head(cons_menor,6)
+```
+```{r, include=TRUE}
+##Con el atributo con_empleo_Yes
+
+ant_sin_empleo <- fc$implications$filter(not_lhs = "con_empleo_Yes")
+
+#Las seis primeras reglas
+cat("Las primeras seis sin con_empleo_Yes en el antecedente")
+head(ant_sin_empleo,6)
+
+cons_sin_empleo <- fc$implications$filter(not_rhs = "con_empleo_Yes")
+
+#Las seis primeras reglas
+cat("Las primeras seis sin con_empleo_Yes en el consecuente")
+head(cons_sin_empleo,6)
+```
+
+
+
+
